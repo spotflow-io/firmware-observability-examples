@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![Docs](https://img.shields.io/badge/docs-docs.spotflow.io-blue)](https://docs.spotflow.io/)
-[![Discord](https://img.shields.io/discord/1372202003635114125?label=Discord&logo=discord&logoColor=white)](https://discord.gg/32sgbECzw
+[![Discord](https://img.shields.io/discord/1372202003635114125?label=Discord&logo=discord&logoColor=white)](https://discord.gg/32sgbECzw)
 [![Blog](https://img.shields.io/badge/blog-spotflow.io%2Fblog-blue)](https://spotflow.io/blog)
 
 Real-world firmware examples for the [Spotflow](https://spotflow.io/) observability platform. Each example accompanies a Spotflow blog post and provides complete, buildable code that you can clone, adapt, and use as a starting point for your own projects.
