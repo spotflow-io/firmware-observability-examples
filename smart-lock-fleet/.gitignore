@@ -1,0 +1,11 @@
+# build output
+build/
+
+# python virtual environment
+.venv/
+
+# external dependencies
+external/
+
+# credentials file
+credentials.conf
