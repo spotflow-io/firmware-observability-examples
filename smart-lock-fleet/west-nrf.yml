@@ -1,0 +1,29 @@
+manifest:
+  projects:
+    # Nordic Connect SDK - used by Nordic boards:
+    #   nrf7002dk_nrf5340_cpuapp, nrf7002dk_nrf5340_cpuapp_ns
+    - name: nrf
+      url: https://github.com/nrfconnect/sdk-nrf
+      revision: v3.2.4
+      clone-depth: 1
+      path: external/nrf
+      import:
+        path-prefix: external
+        name-allowlist:
+          - cmsis_6
+          - hal_nordic
+          - hostap
+          - mbedtls
+          - mcuboot
+          - net-tools
+          - nrf_wifi
+          - nrfxlib
+          - oberon-psa-crypto
+          - trusted-firmware-m
+          - zcbor
+          - zephyr
+
+    - name: spotflow-device-sdk
+      url: https://github.com/spotflow-io/device-sdk
+      revision: main
+      path: external/modules/lib/spotflow
