@@ -50,22 +50,6 @@ Pick the sub-section that matches your board.
 
 #### Zephyr — non-Nordic boards (NXP FRDM-RW612, ESP32, Infineon, RPi Pico W)
 
-**Using the Spotflow setup script (easiest):**
-
-Linux / macOS:
-```sh
-source <(curl --proto '=https' --tlsv1.2 -sSf https://downloads.spotflow.io/spotflowup.sh) --zephyr --board <your-board>
-```
-
-Windows (PowerShell):
-```powershell
-Invoke-Expression "& {$(Invoke-RestMethod -Uri 'https://downloads.spotflow.io/spotflowup.ps1' -UseBasicParsing) } -zephyr -board <your-board>"
-```
-
-Replace `<your-board>` with your Zephyr board identifier (e.g. `frdm_rw612`, `esp32c3_devkitm`).
-
-**Manual setup:**
-
 ```sh
 # 1. Create a workspace directory and activate a virtual environment
 mkdir spotflow-ws && cd spotflow-ws
@@ -107,23 +91,9 @@ pinned Zephyr fork, so a separate manifest (`west-nrf.yml`) is provided.
 
 - [SEGGER J-Link and related tools](https://www.segger.com/downloads/jlink/)
 - `nrfutil` — install standalone or as part of [nRF Connect for VS Code](https://nrfconnect.github.io/vscode-nrf-connect/get_started/install.html)
-- Python 3.10+ and Git (required by the setup script)
+- Python 3.10+ and Git
 
 See the [nRF Connect SDK installation guide](https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/installation/install_ncs.html#install_prerequisites) for the full prerequisites list.
-
-**Using the Spotflow setup script (easiest):**
-
-Linux / macOS:
-```sh
-source <(curl --proto '=https' --tlsv1.2 -sSf https://downloads.spotflow.io/spotflowup.sh) --ncs --board nrf7002dk
-```
-
-Windows (PowerShell):
-```powershell
-Invoke-Expression "& {$(Invoke-RestMethod -Uri 'https://downloads.spotflow.io/spotflowup.ps1' -UseBasicParsing) } -ncs -board nrf7002dk"
-```
-
-**Manual setup:**
 
 ```sh
 # 1. Create a workspace directory and activate a virtual environment
@@ -169,9 +139,7 @@ nrfutil sdk-manager toolchain install --ncs-version v3.2.4
 
 ### Step 2: Clone this example into the workspace
 
-If you followed the manual setup above, the repository is already in place. If you used the
-Spotflow setup script, place the contents of this folder somewhere accessible within your west
-workspace:
+The repository should be placed inside your west workspace, for example:
 
 ```
 <workspace>/
