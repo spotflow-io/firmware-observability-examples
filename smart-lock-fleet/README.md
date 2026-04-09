@@ -65,8 +65,9 @@ pip install west
 git clone https://github.com/spotflow-io/firmware-observability-examples
 cd firmware-observability-examples/smart-lock-fleet
 
-# 3. Initialize the west workspace using the default Zephyr manifest
-west init -l .
+# 3. Fetch all dependencies
+# .west/config is already committed in the repo and points to west.yml,
+# so no "west init" is needed — west update reads it directly.
 west update --fetch-opt=--depth=1 --narrow
 west packages pip --install
 
@@ -77,8 +78,6 @@ west sdk install --version 0.17.4 --toolchains arm-zephyr-eabi
 # (needed for esp32c3_devkitm, esp32c6_devkitc_esp32c6_hpcore, esp32s3_devkitc_esp32s3_procpu)
 west blobs fetch hal_espressif --auto-accept
 ```
-
-> The `.west/config` in this project already points to `west.yml` by default, so `west init -l .` picks it up automatically.
 
 ---
 
@@ -110,7 +109,7 @@ pip install west
 git clone https://github.com/spotflow-io/firmware-observability-examples
 cd firmware-observability-examples/smart-lock-fleet
 
-# 3. Switch the manifest to the NCS manifest before initializing
+# 3. Switch the manifest to the NCS manifest
 #    Edit .west/config and change:
 #      file = west.yml  →  file = west-nrf.yml
 #    Also remove the [zephyr] section (NCS provides Zephyr through its own import):
@@ -123,8 +122,8 @@ cd firmware-observability-examples/smart-lock-fleet
 #      path = .
 #      file = west-nrf.yml
 
-# 4. Initialize and update the workspace
-west init -l .
+# 4. Fetch all dependencies
+# .west/config is already committed in the repo, so no "west init" is needed.
 west update --fetch-opt=--depth=1 --narrow
 west packages pip --install
 
