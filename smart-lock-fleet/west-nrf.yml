@@ -6,7 +6,7 @@ manifest:
       url: https://github.com/nrfconnect/sdk-nrf
       revision: v3.2.4
       clone-depth: 1
-      path: external/nrf
+      path: nrf
       import:
         path-prefix: external
         name-allowlist:

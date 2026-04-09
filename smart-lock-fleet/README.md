@@ -94,6 +94,10 @@ pinned Zephyr fork, so a separate manifest (`west-nrf.yml`) is provided.
 
 See the [nRF Connect SDK installation guide](https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/installation/install_ncs.html#install_prerequisites) for the full prerequisites list.
 
+> **Windows note:** NCS builds generate very deep object file paths. On Windows, use a short
+> workspace root (e.g. `C:\nws`) to stay under the 260-character path limit even when
+> long paths are enabled in the registry, as some build tools still enforce this limit.
+
 ```sh
 # 1. Create a workspace directory and activate a virtual environment
 mkdir spotflow-nrf-ws && cd spotflow-nrf-ws
@@ -128,6 +132,7 @@ west update --fetch-opt=--depth=1 --narrow
 west packages pip --install
 
 # 5. Install the NCS toolchain (replaces "west sdk install" for NCS boards)
+nrfutil install sdk-manager
 nrfutil sdk-manager toolchain install --ncs-version v3.2.4
 ```
 
@@ -136,17 +141,7 @@ nrfutil sdk-manager toolchain install --ncs-version v3.2.4
 
 ---
 
-### Step 2: Clone this example into the workspace
-
-The repository should be placed inside your west workspace, for example:
-
-```
-<workspace>/
-└── firmware-observability-examples/
-    └── smart-lock-fleet/
-```
-
-### Step 3: Configure the application
+### Step 2: Configure the application
 
 Copy `credentials-sample.conf` to `credentials.conf` and fill in your values (this file is
 excluded from version control by `.gitignore`):
@@ -174,15 +169,7 @@ CONFIG_SPOTFLOW_INGEST_KEY="<your-ingest-key>"
 
 Alternatively, set the values directly in `prj.conf`.
 
-### Step 4: Build and flash
-
-Navigate to the `smart-lock-fleet` directory and run `west build` with your board target:
-
-```sh
-cd firmware-observability-examples/smart-lock-fleet
-west build --pristine --board <your-board>
-west flash
-```
+### Step 3: Build and flash
 
 **Board targets:**
 
@@ -196,18 +183,34 @@ west flash
 | Infineon CY8CPROTO-062-4343W | `west.yml` | `cy8cproto_062_4343w` |
 | Raspberry Pi Pico W | `west.yml` | `rpi_pico_rp2040_w` |
 
-> **nRF Connect SDK:** The `west build` and `west flash` commands must be run inside the
-> **nRF Connect toolchain environment**. Launch it with:
-> ```sh
-> nrfutil sdk-manager env launch --ncs-version v3.2.4 -- west build --pristine --board nrf7002dk/nrf5340/cpuapp/ns
-> ```
-> Alternatively, use the integrated terminal in
-> [nRF Connect for VS Code](https://docs.nordicsemi.com/bundle/nrf-connect-vscode/page/guides/extension_nrfconnect_profile.html)
-> or follow the [CLI instructions](https://docs.nordicsemi.com/bundle/nrfutil/page/nrfutil-sdk-manager/guides/sdk_manager_env_launch.html).
+---
+
+#### Zephyr — non-Nordic boards
+
+```sh
+west build --pristine --board <your-board>
+west flash
+```
+
+---
+
+#### nRF Connect SDK — Nordic nRF7002DK
+
+The `west build` and `west flash` commands must be run inside the **nRF Connect toolchain
+environment**. Use `nrfutil sdk-manager toolchain launch` to wrap each command:
+
+```sh
+nrfutil sdk-manager toolchain launch --ncs-version v3.2.4 -- west build --pristine --board nrf7002dk/nrf5340/cpuapp/ns
+nrfutil sdk-manager toolchain launch --ncs-version v3.2.4 -- west flash
+```
+
+Alternatively, use the integrated terminal in
+[nRF Connect for VS Code](https://docs.nordicsemi.com/bundle/nrf-connect-vscode/page/guides/extension_nrfconnect_profile.html)
+or follow the [CLI instructions](https://docs.nordicsemi.com/bundle/nrfutil/page/nrfutil-sdk-manager/guides/toolchain_launch.html).
 
 Once the device is running and shows `MQTT connected!` on UART, it is streaming metrics to Spotflow. Open [app.spotflow.io/devices](https://app.spotflow.io/devices) to see your device appear.
 
-### Step 5: Build the custom dashboard
+### Step 4: Build the custom dashboard
 
 In the Spotflow web app, navigate to **Dashboards → + Create Dashboard** and add widgets for:
 
