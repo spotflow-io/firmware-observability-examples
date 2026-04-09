@@ -9,3 +9,6 @@ external/
 
 # credentials file
 credentials.conf
+
+# IDE and editor files
+.cache/
