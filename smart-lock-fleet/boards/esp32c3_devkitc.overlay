@@ -1,0 +1,2 @@
+// Empty overlay - no devicetree overrides needed for ESP32-C3 DevKitC
+// Wi-Fi is enabled via Kconfig (esp32c3_devkitc.conf)

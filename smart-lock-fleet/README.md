@@ -74,8 +74,10 @@ west packages pip --install
 # 4. Install the Zephyr SDK (adjust toolchain for your board's architecture)
 west sdk install --version 0.17.4 --toolchains arm-zephyr-eabi
 
-# 5. ESP32 boards only: download the required binary blobs
-# (needed for esp32c3_devkitm, esp32c6_devkitc_esp32c6_hpcore, esp32s3_devkitc_esp32s3_procpu)
+# 5. Download required binary blobs (board-dependent)
+# NXP FRDM-RW612: signed Wi-Fi/BLE firmware blobs
+west blobs fetch hal_nxp --auto-accept
+# ESP32 boards (esp32c3_devkitc, esp32c3_devkitm, esp32c6_devkitc_esp32c6_hpcore, esp32s3_devkitc_esp32s3_procpu):
 west blobs fetch hal_espressif --auto-accept
 ```
 
@@ -177,6 +179,7 @@ Alternatively, set the values directly in `prj.conf`.
 |---|---|---|
 | NXP FRDM-RW612 | `west.yml` | `frdm_rw612` |
 | Nordic nRF7002DK | `west-nrf.yml` | `nrf7002dk/nrf5340/cpuapp/ns` |
+| Espressif ESP32-C3 DevKitC-02 | `west.yml` | `esp32c3_devkitc` |
 | Espressif ESP32-C3 DevKitM | `west.yml` | `esp32c3_devkitm` |
 | Espressif ESP32-C6 DevKitC | `west.yml` | `esp32c6_devkitc_esp32c6_hpcore` |
 | Espressif ESP32-S3 DevKitC | `west.yml` | `esp32s3_devkitc_esp32s3_procpu` |
