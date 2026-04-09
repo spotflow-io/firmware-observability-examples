@@ -103,6 +103,26 @@ west blobs fetch hal_espressif --auto-accept
 The nRF7002DK requires the **nRF Connect SDK** (NCS) instead of vanilla Zephyr. NCS ships its own
 pinned Zephyr fork, so a separate manifest (`west-nrf.yml`) is provided.
 
+**NCS-specific prerequisites** (in addition to the common ones above):
+
+- [SEGGER J-Link and related tools](https://www.segger.com/downloads/jlink/)
+- `nrfutil` — install standalone or as part of [nRF Connect for VS Code](https://nrfconnect.github.io/vscode-nrf-connect/get_started/install.html)
+- Python 3.10+ and Git (required by the setup script)
+
+See the [nRF Connect SDK installation guide](https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/installation/install_ncs.html#install_prerequisites) for the full prerequisites list.
+
+**Using the Spotflow setup script (easiest):**
+
+Linux / macOS:
+```sh
+source <(curl --proto '=https' --tlsv1.2 -sSf https://downloads.spotflow.io/spotflowup.sh) --ncs --board nrf7002dk
+```
+
+Windows (PowerShell):
+```powershell
+Invoke-Expression "& {$(Invoke-RestMethod -Uri 'https://downloads.spotflow.io/spotflowup.ps1' -UseBasicParsing) } -ncs -board nrf7002dk"
+```
+
 **Manual setup:**
 
 ```sh
@@ -199,16 +219,24 @@ west flash
 
 **Board targets:**
 
-| Board | Target |
-|---|---|
-| NXP FRDM-RW612 | `frdm_rw612` |
-| Nordic nRF7002DK (Zephyr) | `nrf7002dk_nrf5340_cpuapp` |
-| Nordic nRF7002DK (NCS, TF-M) | `nrf7002dk_nrf5340_cpuapp_ns` |
-| Espressif ESP32-C3 DevKitM | `esp32c3_devkitm` |
-| Espressif ESP32-C6 DevKitC | `esp32c6_devkitc_esp32c6_hpcore` |
-| Espressif ESP32-S3 DevKitC | `esp32s3_devkitc_esp32s3_procpu` |
-| Infineon CY8CPROTO-062-4343W | `cy8cproto_062_4343w` |
-| Raspberry Pi Pico W | `rpi_pico_rp2040_w` |
+| Board | Manifest | Target |
+|---|---|---|
+| NXP FRDM-RW612 | `west.yml` | `frdm_rw612` |
+| Nordic nRF7002DK | `west-nrf.yml` | `nrf7002dk/nrf5340/cpuapp/ns` |
+| Espressif ESP32-C3 DevKitM | `west.yml` | `esp32c3_devkitm` |
+| Espressif ESP32-C6 DevKitC | `west.yml` | `esp32c6_devkitc_esp32c6_hpcore` |
+| Espressif ESP32-S3 DevKitC | `west.yml` | `esp32s3_devkitc_esp32s3_procpu` |
+| Infineon CY8CPROTO-062-4343W | `west.yml` | `cy8cproto_062_4343w` |
+| Raspberry Pi Pico W | `west.yml` | `rpi_pico_rp2040_w` |
+
+> **nRF Connect SDK:** The `west build` and `west flash` commands must be run inside the
+> **nRF Connect toolchain environment**. Launch it with:
+> ```sh
+> nrfutil sdk-manager env launch --ncs-version v3.2.4 -- west build --pristine --board nrf7002dk/nrf5340/cpuapp/ns
+> ```
+> Alternatively, use the integrated terminal in
+> [nRF Connect for VS Code](https://docs.nordicsemi.com/bundle/nrf-connect-vscode/page/guides/extension_nrfconnect_profile.html)
+> or follow the [CLI instructions](https://docs.nordicsemi.com/bundle/nrfutil/page/nrfutil-sdk-manager/guides/sdk_manager_env_launch.html).
 
 Once the device is running and shows `MQTT connected!` on UART, it is streaming metrics to Spotflow. Open [app.spotflow.io/devices](https://app.spotflow.io/devices) to see your device appear.
 
