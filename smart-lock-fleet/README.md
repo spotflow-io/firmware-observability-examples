@@ -206,7 +206,7 @@ nrfutil sdk-manager toolchain launch --ncs-version v3.2.4 -- west flash
 
 Alternatively, use the integrated terminal in
 [nRF Connect for VS Code](https://docs.nordicsemi.com/bundle/nrf-connect-vscode/page/guides/extension_nrfconnect_profile.html)
-or follow the [CLI instructions](https://docs.nordicsemi.com/bundle/nrfutil/page/nrfutil-sdk-manager/guides/toolchain_launch.html).
+or run `nrfutil sdk-manager toolchain launch --help` for full options.
 
 Once the device is running and shows `MQTT connected!` on UART, it is streaming metrics to Spotflow. Open [app.spotflow.io/devices](https://app.spotflow.io/devices) to see your device appear.
 
