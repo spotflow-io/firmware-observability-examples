@@ -22,6 +22,7 @@ Any Zephyr-supported board with network connectivity (Wi-Fi or Ethernet). Tested
 
 - [NXP FRDM-RW612](https://www.nxp.com/design/microcontrollers/arm-cortex-m/rw6xx-rtos-ready-wireless-mcus:FRDM-RW612) (Wi-Fi 6)
 - [Nordic nRF7002DK](https://www.nordicsemi.com/Products/Development-hardware/nRF7002-DK) (Wi-Fi)
+- [Espressif ESP32-C3-DevKitC-02](https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32c3/esp32-c3-devkitc-02/index.html) (Wi-Fi)
 
 For other boards, refer to the [board overlays in the Spotflow Device SDK](https://github.com/spotflow-io/device-sdk/tree/main/zephyr/samples/logs/boards) for configuration inspiration.
 
@@ -71,8 +72,13 @@ cd firmware-observability-examples/smart-lock-fleet
 west update --fetch-opt=--depth=1 --narrow
 west packages pip --install
 
-# 4. Install the Zephyr SDK (adjust toolchain for your board's architecture)
+# 4. Install the Zephyr SDK toolchain(s) for your target board(s):
+# ARM boards (frdm_rw612, cy8cproto_062_4343w, rpi_pico_rp2040_w):
 west sdk install --version 0.17.4 --toolchains arm-zephyr-eabi
+# RISC-V boards (esp32c3_devkitc, esp32c3_devkitm, esp32c6_devkitc_esp32c6_hpcore):
+west sdk install --version 0.17.4 --toolchains riscv64-zephyr-elf
+# Xtensa boards (esp32s3_devkitc_esp32s3_procpu):
+west sdk install --version 0.17.4 --toolchains xtensa-espressif_esp32s3_zephyr-elf
 
 # 5. Download required binary blobs (board-dependent)
 # NXP FRDM-RW612: signed Wi-Fi/BLE firmware blobs
