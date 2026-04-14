@@ -1,7 +1,7 @@
 # Smart Lock Fleet — Custom Metrics & Dashboards
 
 > Companion code for the Spotflow blog post:
-> **[Custom Metrics & Dashboards for Embedded Devices: From Sensor Data to Product Analytics](https://spotflow.io/blog/custom-metrics-dashboards-embedded-devices)**
+> **[Custom Metrics & Dashboards for Embedded Devices: From Sensor Data to Product Analytics](https://spotflow.io/blog/custom-metrics-dashboards-embedded-devices?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_smart_lock_readme&utm_content=link_blog_post)**
 
 This example demonstrates how to instrument a fleet of connected smart locks with **custom application metrics** using Spotflow, and how to build a **custom dashboard** in the Spotflow web app that goes beyond built-in system health into product analytics.
 
@@ -28,7 +28,7 @@ For other boards, refer to the [board overlays in the Spotflow Device SDK](https
 
 ## Prerequisites
 
-- A Spotflow account and ingest key — [sign up for free](https://app.spotflow.io/signup), then manage your keys at [app.spotflow.io/ingest-keys](https://app.spotflow.io/ingest-keys)
+- A Spotflow account and ingest key — [sign up for free](https://app.spotflow.io/signup?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_smart_lock_readme&utm_content=cta_signup), then manage your keys at [app.spotflow.io/ingest-keys](https://app.spotflow.io/ingest-keys?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_smart_lock_readme&utm_content=link_ingest_keys)
 - `west` and Python 3 installed
 - A toolchain matching your target platform (see per-platform instructions below):
   - **Zephyr / ESP32 boards** — Zephyr SDK; see the [Zephyr Getting Started Guide](https://docs.zephyrproject.org/latest/develop/getting_started/index.html)
@@ -217,7 +217,7 @@ Alternatively, use the integrated terminal in
 [nRF Connect for VS Code](https://docs.nordicsemi.com/bundle/nrf-connect-vscode/page/guides/extension_nrfconnect_profile.html)
 or run `nrfutil sdk-manager toolchain launch --help` for full options.
 
-Once the device is running and shows `MQTT connected!` on UART, it is streaming metrics to Spotflow. Open [app.spotflow.io/devices](https://app.spotflow.io/devices) to see your device appear.
+Once the device is running and shows `MQTT connected!` on UART, it is streaming metrics to Spotflow. Open [app.spotflow.io/devices](https://app.spotflow.io/devices?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_smart_lock_readme&utm_content=link_devices) to see your device appear.
 
 ### Step 4: Build the custom dashboard
 
@@ -228,7 +228,7 @@ In the Spotflow web app, navigate to **Dashboards → + Create Dashboard** and a
 - `auth_failure` grouped by `method` (bar chart, count)
 - `battery_level_percent` (line chart, percent)
 
-See [Create Custom Dashboard](https://docs.spotflow.io/guides/custom-dashboards) for the step-by-step guide.
+See [Create Custom Dashboard](https://docs.spotflow.io/guides/custom-dashboards?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_smart_lock_readme&utm_content=link_guide_custom_dashboards) for the step-by-step guide.
 
 ## Project structure
 
@@ -254,9 +254,9 @@ smart-lock-fleet/
 
 ## Related links
 
-- [Custom Metrics & Dashboards for Embedded Devices](https://spotflow.io/blog/custom-metrics-dashboards-embedded-devices) — the blog post this example accompanies
-- [Fundamentals: Metrics](https://docs.spotflow.io/fundamentals/metrics) — aggregation intervals, system vs. custom metrics, transport protocol
-- [Fundamentals: Dashboards](https://docs.spotflow.io/fundamentals/dashboards) — device dashboard, overview dashboard, custom dashboards
-- [Guide: Metrics with Zephyr](https://docs.spotflow.io/guides/zephyr/metrics-zephyr) — full Zephyr integration reference
-- [Guide: Create Custom Dashboard](https://docs.spotflow.io/guides/custom-dashboards) — step-by-step dashboard builder walkthrough
+- [Custom Metrics & Dashboards for Embedded Devices](https://spotflow.io/blog/custom-metrics-dashboards-embedded-devices?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_smart_lock_readme&utm_content=link_blog_post) — the blog post this example accompanies
+- [Fundamentals: Metrics](https://docs.spotflow.io/fundamentals/metrics?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_smart_lock_readme&utm_content=link_fundamentals_metrics) — aggregation intervals, system vs. custom metrics, transport protocol
+- [Fundamentals: Dashboards](https://docs.spotflow.io/fundamentals/dashboards?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_smart_lock_readme&utm_content=link_fundamentals_dashboards) — device dashboard, overview dashboard, custom dashboards
+- [Guide: Metrics with Zephyr](https://docs.spotflow.io/guides/zephyr/metrics-zephyr?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_smart_lock_readme&utm_content=link_guide_metrics_zephyr) — full Zephyr integration reference
+- [Guide: Create Custom Dashboard](https://docs.spotflow.io/guides/custom-dashboards?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_smart_lock_readme&utm_content=link_guide_custom_dashboards) — step-by-step dashboard builder walkthrough
 - [Spotflow Device SDK](https://github.com/spotflow-io/device-sdk) — west module source and basic samples
