@@ -78,19 +78,19 @@ west update --fetch-opt=--depth=1 --narrow
 west packages pip --install
 
 # 4. Install the Zephyr SDK toolchain(s) for your target board(s):
-# ARM boards (frdm_rw612, cy8cproto_062_4343w, rpi_pico_rp2040_w):
+# ARM boards (frdm_rw612, cy8cproto_062_4343w, rpi_pico/rp2040/w):
 west sdk install --version 0.17.4 --toolchains arm-zephyr-eabi
-# RISC-V boards (esp32c3_devkitc, esp32c3_devkitm, esp32c6_devkitc_esp32c6_hpcore):
+# RISC-V boards (esp32c3_devkitc, esp32c3_devkitm, esp32c6_devkitc/esp32c6/hpcore):
 west sdk install --version 0.17.4 --toolchains riscv64-zephyr-elf
-# Xtensa boards (esp32s3_devkitc_esp32s3_procpu):
+# Xtensa boards (esp32s3_devkitc/esp32s3/procpu):
 west sdk install --version 0.17.4 --toolchains xtensa-espressif_esp32s3_zephyr-elf
 
 # 5. Download required binary blobs (board-dependent)
 # NXP FRDM-RW612: signed Wi-Fi/BLE firmware blobs
 west blobs fetch hal_nxp --auto-accept
-# ESP32 boards (esp32c3_devkitc, esp32c3_devkitm, esp32c6_devkitc_esp32c6_hpcore, esp32s3_devkitc_esp32s3_procpu):
+# ESP32 boards (esp32c3_devkitc, esp32c3_devkitm, esp32c6_devkitc/esp32c6/hpcore, esp32s3_devkitc/esp32s3/procpu):
 west blobs fetch hal_espressif --auto-accept
-# Infineon board and Raspberry Pi Pico W (cy8cproto_062_4343w, rpi_pico_rp2040_w): Wi-Fi firmware blobs for the Infineon CYW43439
+# Infineon board and Raspberry Pi Pico W (cy8cproto_062_4343w, rpi_pico/rp2040/w): Wi-Fi firmware blobs for the Infineon CYW43439
 west blobs fetch hal_infineon --auto-accept
 ```
 
@@ -183,10 +183,10 @@ Alternatively, set the values directly in `prj.conf`.
 | Nordic nRF7002DK | `west-nrf.yml` | `nrf7002dk/nrf5340/cpuapp/ns` |
 | Espressif ESP32-C3 DevKitC-02 | `west.yml` | `esp32c3_devkitc` |
 | Espressif ESP32-C3 DevKitM | `west.yml` | `esp32c3_devkitm` |
-| Espressif ESP32-C6 DevKitC | `west.yml` | `esp32c6_devkitc_esp32c6_hpcore` |
-| Espressif ESP32-S3 DevKitC | `west.yml` | `esp32s3_devkitc_esp32s3_procpu` |
+| Espressif ESP32-C6 DevKitC | `west.yml` | `esp32c6_devkitc/esp32c6/hpcore` |
+| Espressif ESP32-S3 DevKitC | `west.yml` | `esp32s3_devkitc/esp32s3/procpu` |
 | Infineon CY8CPROTO-062-4343W | `west.yml` | `cy8cproto_062_4343w` |
-| Raspberry Pi Pico W | `west.yml` | `rpi_pico_rp2040_w` |
+| Raspberry Pi Pico W | `west.yml` | `rpi_pico/rp2040/w` |
 
 ---
 
