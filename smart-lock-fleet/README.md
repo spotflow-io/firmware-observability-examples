@@ -131,14 +131,13 @@ cd firmware-observability-examples/smart-lock-fleet
 #      path = .
 #      file = west-nrf.yml
 
-# 4. Fetch all dependencies
-# .west/config is already committed in the repo, so no "west init" is needed.
-west update --fetch-opt=--depth=1 --narrow
-west packages pip --install
-
-# 5. Install the NCS toolchain (replaces "west sdk install" for NCS boards)
+# 3. Install the NCS toolchain
 nrfutil install sdk-manager
 nrfutil sdk-manager toolchain install --ncs-version v3.2.4
+
+# 4. Fetch all dependencies
+# .west/config is already committed in the repo, so no "west init" is needed.
+nrfutil sdk-manager toolchain launch --ncs-version v3.2.4 -- west update --fetch-opt=--depth=1 --narrow
 ```
 
 > **Note:** `west sdk install` (Zephyr SDK) is **not** used with NCS.
