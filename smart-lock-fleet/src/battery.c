@@ -84,7 +84,7 @@ static void battery_thread_entry(void)
 		if (rc < 0) {
 			LOG_ERR("Failed to report battery_level_percent: %d", rc);
 		} else {
-			LOG_INF("Battery level: %.1f%%", (double)level);
+			LOG_DBG("Battery level: %.1f%%", (double)level);
 		}
 
 		k_sleep(K_MSEC(BATTERY_REPORT_INTERVAL_MS));
