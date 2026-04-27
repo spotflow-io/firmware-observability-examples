@@ -1,25 +1,3 @@
-/*
- * Smart Lock Fleet - Spotflow Custom Metrics Sample
- *
- * This sample demonstrates custom metrics reporting for a fleet of smart locks
- * using the Spotflow observability platform.
- *
- * Metrics reported:
- *   lock_operation_duration_ms  - duration of each lock/unlock operation (float, 1MIN agg)
- *                                 Labels: "operation" (lock|unlock), "method" (nfc|keypad|bluetooth)
- *   door_opened                 - event fired each time the door opens (int, no agg)
- *   auth_failure                - authentication failure event (int, no agg)
- *                                 Label: "method" (nfc|keypad|bluetooth)
- *   battery_level_percent       - battery percentage sampled every 5 min (float, no agg)
- *
- * Prerequisites:
- *   Copy credentials-sample.conf to credentials.conf and fill in your device ID,
- *   ingest key, and Wi-Fi credentials before building.
- *
- * Build:
- *   west build -b <board> -- -DEXTRA_CONF_FILE=credentials.conf
- */
-
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 
