@@ -7,7 +7,7 @@ endif()
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(smart_lock_fleet)
 
-add_subdirectory(net-common ${CMAKE_CURRENT_BINARY_DIR}/net-common)
+add_subdirectory(src/net ${CMAKE_CURRENT_BINARY_DIR}/src/net)
 
 target_sources(app PRIVATE
         src/main.c
