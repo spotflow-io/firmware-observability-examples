@@ -52,8 +52,11 @@ Pick the sub-section that matches your board.
 #### Zephyr — non-Nordic boards (NXP FRDM-RW612, ESP32, Infineon, RPi Pico W)
 
 ```sh
-# 1. Create a workspace directory and activate a virtual environment
-mkdir spotflow-ws && cd spotflow-ws
+# 1. Clone this repository
+git clone https://github.com/spotflow-io/firmware-observability-examples
+cd firmware-observability-examples/smart-lock-fleet
+
+# 2. Create and activate a virtual environment
 python -m venv .venv
 # Linux/macOS:
 source .venv/bin/activate
@@ -61,10 +64,6 @@ source .venv/bin/activate
 # .venv/Scripts/Activate.ps1
 
 pip install west
-
-# 2. Clone this repository into the workspace
-git clone https://github.com/spotflow-io/firmware-observability-examples
-cd firmware-observability-examples/smart-lock-fleet
 
 # 3. Fetch all dependencies
 # .west/config is already committed in the repo and points to west.yml,
