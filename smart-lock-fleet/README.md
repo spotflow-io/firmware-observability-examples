@@ -114,21 +114,11 @@ See the [nRF Connect SDK installation guide](https://docs.nordicsemi.com/bundle/
 > long paths are enabled in the registry, as some build tools still enforce this limit.
 
 ```sh
-# 1. Create a workspace directory and activate a virtual environment
-mkdir spotflow-nrf-ws && cd spotflow-nrf-ws
-python -m venv .venv
-# Linux/macOS:
-source .venv/bin/activate
-# Windows (PowerShell):
-# .venv/Scripts/Activate.ps1
-
-pip install west
-
-# 2. Clone this repository into the workspace
+# 1. Clone this repository
 git clone https://github.com/spotflow-io/firmware-observability-examples
 cd firmware-observability-examples/smart-lock-fleet
 
-# 3. Switch the manifest to the NCS manifest
+# 2. Switch the manifest to the NCS manifest
 #    Edit .west/config and change:
 #      file = west.yml  →  file = west-nrf.yml
 #    Also remove the [zephyr] section (NCS provides Zephyr through its own import):
