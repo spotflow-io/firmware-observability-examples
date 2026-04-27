@@ -85,6 +85,8 @@ west sdk install --version 0.17.4 --toolchains xtensa-espressif_esp32s3_zephyr-e
 west blobs fetch hal_nxp --auto-accept
 # ESP32 boards (esp32c3_devkitc, esp32c3_devkitm, esp32c6_devkitc_esp32c6_hpcore, esp32s3_devkitc_esp32s3_procpu):
 west blobs fetch hal_espressif --auto-accept
+# Infineon board and Raspberry Pi Pico W (cy8cproto_062_4343w, rpi_pico_rp2040_w): Wi-Fi firmware blobs for the Infineon CYW43439
+west blobs fetch hal_infineon --auto-accept
 ```
 
 ---
