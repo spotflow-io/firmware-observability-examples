@@ -248,7 +248,6 @@ smart-lock-fleet/
     │                          and authentication failure metrics
     ├── lock.h               — Public API for lock module
     ├── battery.c            — Battery monitor thread; reports battery_level_percent metric
-    ├── battery.h            — Public API for battery module
     └── net.h                — Network helper: Wi-Fi / Ethernet connection setup
 ```
 

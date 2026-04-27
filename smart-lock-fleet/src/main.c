@@ -3,7 +3,6 @@
 
 #include "net.h"
 #include "lock.h"
-#include "battery.h"
 
 LOG_MODULE_REGISTER(smart_lock_main, LOG_LEVEL_INF);
 
@@ -23,12 +22,6 @@ int main(void)
 		LOG_ERR("Failed to initialize lock metrics: %d", rc);
 		return -1;
 	}
-
-	/*
-	 * Start the battery monitor thread.
-	 * The thread registers battery_level_percent and reports every 5 minutes.
-	 */
-	init_battery_monitor();
 
 	LOG_INF("Starting lock operation simulation...");
 

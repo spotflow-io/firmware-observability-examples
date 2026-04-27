@@ -15,8 +15,6 @@
  * Here we simulate a slowly draining battery starting from a random level.
  */
 
-#include "battery.h"
-
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 #include <zephyr/random/random.h>
@@ -63,6 +61,8 @@ static float read_battery_percent(void)
 
 static void battery_thread_entry(void)
 {
+	LOG_INF("Battery monitor thread started");
+
 	/*
 	 * Register the metric inside the thread, matching the SDK pattern
 	 * (see temperature_thread_entry in the official metrics sample).
@@ -94,14 +94,3 @@ static void battery_thread_entry(void)
 K_THREAD_DEFINE(battery_thread, BATTERY_THREAD_STACK_SIZE,
 		battery_thread_entry, NULL, NULL, NULL,
 		BATTERY_THREAD_PRIORITY, 0, 0);
-
-void init_battery_monitor(void)
-{
-	/*
-	 * The thread is already started by K_THREAD_DEFINE at boot.
-	 * This function exists as an explicit call site in main() to make
-	 * the initialization sequence clear to readers of the code.
-	 * No action is needed here.
-	 */
-	LOG_INF("Battery monitor thread started");
-}
