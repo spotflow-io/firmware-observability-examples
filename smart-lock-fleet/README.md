@@ -197,7 +197,7 @@ Alternatively, set the values directly in `prj.conf`.
 #### Zephyr — non-Nordic boards
 
 ```sh
-west build --pristine --board <your-board>
+west build --pristine --board <your-board-target>
 west flash
 ```
 
