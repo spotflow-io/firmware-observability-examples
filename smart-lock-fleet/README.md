@@ -28,11 +28,17 @@ For other boards, refer to the [board overlays in the Spotflow Device SDK](https
 
 ## Prerequisites
 
+**Both setups require:**
 - A Spotflow account and ingest key — [sign up for free](https://app.spotflow.io/signup?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_smart_lock_readme&utm_content=cta_signup), then manage your keys at [app.spotflow.io/ingest-keys](https://app.spotflow.io/ingest-keys?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_smart_lock_readme&utm_content=link_ingest_keys)
-- `west` and Python 3 installed
-- A toolchain matching your target platform (see per-platform instructions below):
-  - **Zephyr / ESP32 boards** — Zephyr SDK; see the [Zephyr Getting Started Guide](https://docs.zephyrproject.org/latest/develop/getting_started/index.html)
-  - **Nordic nRF7002DK** — `nrfutil` (nRF Connect SDK toolchain manager); see the [nRF Connect SDK installation guide](https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/installation.html)
+- Git
+
+**Zephyr (non-Nordic boards) additionally requires:**
+- Python 3.12+
+- Flashing software matching your board (e.g. J-Link or OpenOCD)
+
+**nRF Connect SDK (Nordic nRF7002DK) additionally requires:**
+- [SEGGER J-Link](https://www.segger.com/downloads/jlink/)
+- `nrfutil` — see the [nRF Connect SDK installation guide](https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/installation.html)
 
 ## Setup
 
