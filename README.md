@@ -46,10 +46,6 @@ Spotflow integrates with [Zephyr RTOS](https://www.zephyrproject.org/) and [nRF 
 
 ---
 
-## Contributing
-
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for instructions on how to add a new example.
-
 ## License
 
 The code in this repository is licensed under the MIT License, see [LICENSE](./LICENSE) for details.
