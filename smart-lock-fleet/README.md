@@ -101,9 +101,12 @@ west blobs fetch hal_infineon --auto-accept
 The nRF7002DK requires the **nRF Connect SDK** (NCS) instead of vanilla Zephyr. NCS ships its own
 pinned Zephyr fork, so a separate manifest (`west-nrf.yml`) is provided.
 
-> **Windows note:** NCS builds generate very deep object file paths. On Windows, use a short
-> workspace root (e.g. `C:\nws`) to stay under the 260-character path limit even when
-> long paths are enabled in the registry, as some build tools still enforce this limit.
+> **Windows note:** NCS builds generate very deep object file paths. On Windows, clone into a short directory to stay under the 260-character path limit, some build tools enforce this limit even when long paths are enabled in the registry:
+> ```powershell
+> git clone https://github.com/spotflow-io/firmware-observability-examples C:\nws
+> Rename-Item C:\nws\smart-lock-fleet app
+> cd C:\nws\app
+> ```
 
 ```sh
 # 1. Clone this repository
