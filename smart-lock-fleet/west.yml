@@ -1,0 +1,25 @@
+manifest:
+  projects:
+    # Zephyr RTOS - used by all non-NCS boards:
+    #   cy8cproto_062_4343w (Infineon), esp32c3_devkitm, esp32c6_devkitc_esp32c6_hpcore,
+    #   esp32s3_devkitc_esp32s3_procpu (Espressif), frdm_rw612 (NXP), rpi_pico_rp2040_w
+    - name: zephyr
+      url: https://github.com/zephyrproject-rtos/zephyr
+      revision: v4.3.0
+      clone-depth: 1
+      import:
+        path-prefix: external
+        name-allowlist:
+          - cmsis_6          # Infineon, NXP, RPi Pico W
+          - hal_espressif    # Espressif (ESP32-C3, ESP32-C6, ESP32-S3)
+          - hal_infineon     # Infineon (CY8CPROTO), RPi Pico W (CYW43)
+          - hal_nxp          # NXP (FRDM-RW612)
+          - hal_rpi_pico     # Raspberry Pi Pico W
+          - mbedtls          # all boards
+          - mcuboot          # all boards
+          - zcbor            # all boards
+
+    - name: spotflow-device-sdk
+      url: https://github.com/spotflow-io/device-sdk
+      revision: main
+      path: external/modules/lib/spotflow
