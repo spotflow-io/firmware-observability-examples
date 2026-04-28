@@ -101,14 +101,6 @@ west blobs fetch hal_infineon --auto-accept
 The nRF7002DK requires the **nRF Connect SDK** (NCS) instead of vanilla Zephyr. NCS ships its own
 pinned Zephyr fork, so a separate manifest (`west-nrf.yml`) is provided.
 
-**NCS-specific prerequisites** (in addition to the common ones above):
-
-- [SEGGER J-Link and related tools](https://www.segger.com/downloads/jlink/)
-- `nrfutil` — install standalone or as part of [nRF Connect for VS Code](https://nrfconnect.github.io/vscode-nrf-connect/get_started/install.html)
-- Python 3.10+ and Git
-
-See the [nRF Connect SDK installation guide](https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/installation/install_ncs.html#install_prerequisites) for the full prerequisites list.
-
 > **Windows note:** NCS builds generate very deep object file paths. On Windows, use a short
 > workspace root (e.g. `C:\nws`) to stay under the 260-character path limit even when
 > long paths are enabled in the registry, as some build tools still enforce this limit.
