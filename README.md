@@ -12,7 +12,7 @@ Real-world firmware examples for the [Spotflow](https://spotflow.io/?utm_source=
 
 [Spotflow](https://spotflow.io/?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_readme&utm_content=inline_hero) is an observability platform built specifically for embedded devices. It collects logs, metrics, and crash dumps from your firmware and makes them searchable and actionable from a single web interface, without requiring a field visit or a serial cable.
 
-Spotflow integrates with [Zephyr RTOS](https://www.zephyrproject.org/), [nRF Connect SDK](https://www.nordicsemi.com/Products/Development-software/nRF-Connect-SDK), and [ESP-IDF](https://idf.espressif.com/) as a standard west module. Any other platform can connect via MQTT over TLS.
+Spotflow integrates with [Zephyr RTOS](https://www.zephyrproject.org/) and [nRF Connect SDK](https://www.nordicsemi.com/Products/Development-software/nRF-Connect-SDK) as a standard west module, and with [ESP-IDF](https://idf.espressif.com/) as an [ESP component](https://components.espressif.com/components/spotflow/device_sdk). Any other platform can connect via MQTT over TLS.
 
 - [Documentation](https://docs.spotflow.io/?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_readme&utm_content=link_docs)
 - [Device SDK](https://github.com/spotflow-io/device-sdk)
