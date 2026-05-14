@@ -1,0 +1,23 @@
+&wifi {
+	status = "okay";
+};
+
+/* Remove the default scratch and coredump partitions, then define a
+ * dedicated 128 KB coredump partition at the top of the 4 MB flash.
+ * Based on partitions_0x0_default_4M.dtsi from Zephyr. */
+/delete-node/ &scratch_partition;
+/delete-node/ &coredump_partition;
+
+&flash0 {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		/* 128 KB coredump partition (124 KB from deleted scratch + 4 KB from old coredump) */
+		coredump_partition: partition@3e0000 {
+			label = "coredump-partition";
+			reg = <0x3e0000 DT_SIZE_K(128)>;
+		};
+	};
+};
