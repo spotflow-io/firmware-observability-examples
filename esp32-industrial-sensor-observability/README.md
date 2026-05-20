@@ -11,6 +11,10 @@ This example demonstrates how to instrument an ESP32 industrial sensor node with
 
 The scenario is intentionally concrete: a sensor node starts showing CRC errors, backlog growth, and retry storms before a malformed telemetry frame triggers an application crash.
 
+## Runtime behavior
+
+This example boots through MCUboot, starts the Zephyr application, connects to Wi-Fi, and then connects to Spotflow over MQTT/TLS. Once connected, it continuously streams remote logs, system metrics, custom sensor metrics, and crash artifacts. The firmware simulates an industrial sensor node that periodically uploads sensor batches and occasionally emits warning signs such as CRC mismatches and sensor backlog growth. Pressing the user button triggers a deterministic crash path; after reboot, the device reconnects to Wi-Fi and Spotflow and resumes reporting.
+
 ## What this example demonstrates
 
 - Zephyr RTOS + Spotflow SDK on ESP32-C3, ESP32-C6, and ESP32-S3
