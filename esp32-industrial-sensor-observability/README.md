@@ -1,0 +1,203 @@
+# ESP32 Industrial Sensor Observability
+
+> Companion code for the Spotflow blog post:
+> **[Why ESP32 Crashes](https://spotflow.io/blog/esp32-remote-logging-monitoring-debugging?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_blog_post)**
+
+This example demonstrates how to instrument an ESP32 industrial sensor node with Spotflow so you can investigate one field failure from three angles:
+
+- ESP32 remote logging
+- ESP32 device monitoring with custom metrics
+- crash reports after a reboot
+
+The scenario is intentionally concrete: a sensor node starts showing CRC errors, backlog growth, and retry storms before a malformed telemetry frame triggers an application crash.
+
+## What this example demonstrates
+
+- Zephyr RTOS + Spotflow SDK on ESP32-C3, ESP32-C6, and ESP32-S3
+- remote logs over MQTT/TLS
+- system metrics plus application metrics in one firmware image
+- a reproducible button-triggered parser crash
+- board-specific coredump storage layout
+- one generic application flow across all supported boards
+
+## Hardware
+
+Any supported ESP32 board with Wi-Fi connectivity. Tested on:
+
+- [Espressif ESP32-C3-DevKitC-02](https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32c3/esp32-c3-devkitc-02/index.html)
+- [Espressif ESP32-C6-DevKitC-1](https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32c6/esp32-c6-devkitc-1/index.html)
+- [Espressif ESP32-S3-DevKitC-1](https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32s3/esp32-s3-devkitc-1/index.html)
+
+## Prerequisites
+
+**This setup requires:**
+
+- A Spotflow account and ingest key - [sign up for free](https://app.spotflow.io/signup?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=cta_signup)
+- Git
+- Python 3.12+
+
+## Setup
+
+### Step 1: Create the workspace environment
+
+```powershell
+python -m venv .venv
+# Windows PowerShell:
+.venv\Scripts\Activate.ps1
+
+pip install west
+```
+
+### Step 2: Fetch the pinned dependencies
+
+`.west/config` is already committed and points to `west.yml`, so no `west init` step is needed.
+
+```sh
+west update --fetch-opt=--depth=1 --narrow
+west packages pip --install
+west blobs fetch hal_espressif --auto-accept
+```
+
+The manifest is pinned to:
+
+- Zephyr `v4.4.0`
+- Spotflow Device SDK `main`
+
+### Step 3: Install the Zephyr SDK toolchain(s)
+
+ESP32-C3 and ESP32-C6 use the RISC-V toolchain:
+
+```sh
+west sdk install --version 1.0.1 --toolchains riscv64-zephyr-elf
+```
+
+ESP32-S3 uses the Xtensa toolchain:
+
+```sh
+west sdk install --version 1.0.1 --toolchains xtensa-espressif_esp32s3_zephyr-elf
+```
+
+### Step 4: Configure the application
+
+Copy `credentials-sample.conf` to `credentials.conf` and fill in your values. This file is excluded from version control by `.gitignore`.
+
+```powershell
+Copy-Item credentials-sample.conf credentials.conf
+```
+
+Then edit `credentials.conf`:
+
+```ini
+CONFIG_NET_WIFI_SSID="<your-ssid>"
+CONFIG_NET_WIFI_PASSWORD="<your-password>"
+CONFIG_SPOTFLOW_DEVICE_ID="esp32-industrial-sensor-001"
+CONFIG_SPOTFLOW_INGEST_KEY="<your-ingest-key>"
+```
+
+## Build and flash
+
+**Board targets:**
+
+| Board | Target | Notes |
+|---|---|---|
+| Espressif ESP32-C3 DevKitC | `esp32c3_devkitc` | 4 MB flash, smaller coredump partition |
+| Espressif ESP32-C6 DevKitC | `esp32c6_devkitc/esp32c6/hpcore` | 8 MB flash layout |
+| Espressif ESP32-S3 DevKitC | `esp32s3_devkitc/esp32s3/procpu` | 32 MB flash override in this example |
+
+```sh
+west build --pristine --board <your-board-target>
+west flash
+```
+
+If your ESP32 flashing setup requires an explicit serial device, pass the appropriate runner option for your environment.
+
+Once the device is running and shows `MQTT connected!` on UART, it is streaming logs, metrics, and crash artifacts to Spotflow. Open [app.spotflow.io/devices](https://app.spotflow.io/devices?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_devices) to see your device appear.
+
+## What to expect on UART
+
+On a healthy boot you should see lines like these:
+
+- `ESP32 industrial sensor node example starting`
+- `Connecting to SSID: <your-ssid>`
+- `Connected to <your-ssid>`
+- `Using Spotflow device ID: <your-device-id>`
+- `MQTT connected!`
+- `Uploaded sensor batch: channels=3 avg=... age=...`
+
+During steady-state operation the node also emits warning-level signals that model the field failure:
+
+- `Sensor FIFO backlog grew to ... ms after retry storm`
+- `CRC mismatch on Modbus frame from remote probe head`
+
+## Crash reproduction
+
+Press the user button on the board to arm the deterministic crash path.
+
+You should then see:
+
+- `User button pressed. Arming reproducible crash path.`
+- `Crash repro armed: forcing malformed sensor frame after a short delay`
+
+The application then forces `channel_count = 7` in a frame that only contains three real samples. After the repro path has been armed for a short delay, the parser trusts the corrupted count and dereferences a null pointer in `decode_auxiliary_channel()`.
+
+After reboot, the app reconnects to Wi-Fi and Spotflow and is ready to continue uploading logs, metrics, and crash artifacts.
+
+## Custom metrics
+
+This example registers these application metrics:
+
+- `sensor_cycle_duration_ms`
+- `sensor_read_failures`
+- `uplink_retry_count`
+- `sensor_data_age_ms`
+- `application_restarts`
+
+It also enables Spotflow system metrics for:
+
+- heap
+- network traffic
+- connection state
+- reset cause
+- thread stack usage
+
+Depending on board support, the generated build can also expose CPU utilization.
+
+## Project structure
+
+```text
+esp32-industrial-sensor-observability/
+├── .west/config
+├── CMakeLists.txt
+├── Kconfig
+├── prj.conf
+├── west.yml
+├── credentials-sample.conf
+├── boards/
+│   ├── esp32_8M.dtsi
+│   ├── esp32c3_devkitc.conf
+│   ├── esp32c3_devkitc.overlay
+│   ├── esp32c6_devkitc_esp32c6_hpcore.conf
+│   ├── esp32c6_devkitc_esp32c6_hpcore.overlay
+│   ├── esp32s3_devkitc_esp32s3_procpu.conf
+│   └── esp32s3_devkitc_esp32s3_procpu.overlay
+└── src/
+    ├── main.c
+    ├── sensor_node.c
+    ├── sensor_node.h
+    └── net/
+```
+
+## Notes
+
+- The board fragments contain only board-specific technical settings such as flash layout, reconnect behavior, and coredump tuning.
+- The ESP32-S3 board in this example overrides the upstream Zephyr `N8` flash geometry to match tested 32 MB hardware.
+- During validation the ESP ROM printed a `SHA-256 comparison failed` message before Zephyr booted on the tested boards. The example still booted, connected, and ran correctly.
+
+## Related links
+
+- [Why ESP32 Crashes](https://spotflow.io/blog/esp32-remote-logging-monitoring-debugging?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_blog_post) — the companion blog post
+- [Fundamentals: Logging](https://docs.spotflow.io/fundamentals/logging?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_fundamentals_logging) — remote logs and backend behavior
+- [Fundamentals: Metrics](https://docs.spotflow.io/fundamentals/metrics?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_fundamentals_metrics) — system vs. custom metrics
+- [Guide: Metrics with Zephyr](https://docs.spotflow.io/guides/zephyr/metrics-zephyr?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_guide_metrics_zephyr) — Zephyr integration reference
+- [Guide: Coredumps with Zephyr](https://docs.spotflow.io/guides/zephyr/coredumps-zephyr?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_guide_coredumps_zephyr) — crash report integration
+- [Spotflow Device SDK](https://github.com/spotflow-io/device-sdk) — SDK source and samples
