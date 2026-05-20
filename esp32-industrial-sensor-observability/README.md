@@ -3,10 +3,11 @@
 > Companion code for the Spotflow blog post:
 > **[Why ESP32 Crashes](https://spotflow.io/blog/esp32-remote-logging-monitoring-debugging?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_blog_post)**
 
-This example demonstrates how to instrument an ESP32 industrial sensor node with [Spotflow](https://docs.spotflow.io/?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_docs_intro) so you can investigate one field failure from three angles:
+This example demonstrates how to instrument an ESP32 industrial sensor node with [Spotflow](https://docs.spotflow.io/?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_docs_intro) so you can investigate one field failure as one workflow built from four complementary signals:
 
 - ESP32 remote logging
 - ESP32 device monitoring with custom metrics
+- alerting before the reboot
 - crash reports after a reboot
 
 The scenario is intentionally concrete: a sensor node starts showing CRC errors, backlog growth, and retry storms before a malformed telemetry frame triggers an application crash.
