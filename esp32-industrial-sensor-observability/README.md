@@ -42,8 +42,10 @@ Any supported ESP32 board with Wi-Fi connectivity. Tested on:
 
 ```powershell
 python -m venv .venv
-# Windows PowerShell:
-.venv\Scripts\Activate.ps1
+# Linux/macOS:
+source .venv/bin/activate
+# Windows (PowerShell):
+# .venv/Scripts/Activate.ps1
 
 pip install west
 ```
@@ -51,6 +53,8 @@ pip install west
 ### Step 2: Fetch the pinned dependencies
 
 `.west/config` is already committed and points to `west.yml`, so no `west init` step is needed.
+
+> **Windows note:** This workspace can exceed path-length limits during `west update` on Windows if you clone it into a deep directory. Even with long paths enabled in the OS, some tools still fail. Use a short path such as `C:\ws\firmware-observability-examples\esp32-industrial-sensor-observability` when working on Windows.
 
 ```sh
 west update --fetch-opt=--depth=1 --narrow
@@ -105,7 +109,7 @@ CONFIG_SPOTFLOW_INGEST_KEY="<your-ingest-key>"
 | Espressif ESP32-S3 DevKitC | `esp32s3_devkitc/esp32s3/procpu` | 32 MB flash override in this example |
 
 ```sh
-west build --pristine --board <your-board-target>
+west build --pristine --sysbuild --board <your-board-target>
 west flash
 ```
 
@@ -191,7 +195,8 @@ esp32-industrial-sensor-observability/
 
 - The board fragments contain only board-specific technical settings such as flash layout, reconnect behavior, and coredump tuning.
 - The ESP32-S3 board in this example overrides the upstream Zephyr `N8` flash geometry to match tested 32 MB hardware.
-- During validation the ESP ROM printed a `SHA-256 comparison failed` message before Zephyr booted on the tested boards. The example still booted, connected, and ran correctly.
+- This example uses MCUboot via `sysbuild` to avoid the ESP simple-boot ROM `SHA-256 comparison failed ... Attempting to boot anyway...` warning observed during earlier validation.
+- If you still see the ROM SHA-256 warning on your hardware, the firmware can still boot and run, but treat it as a boot-flow regression worth investigating.
 
 ## Related links
 
