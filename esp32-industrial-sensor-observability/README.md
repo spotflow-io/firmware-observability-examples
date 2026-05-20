@@ -20,6 +20,7 @@ This example boots through MCUboot, starts the Zephyr application, connects to W
 - Zephyr RTOS + Spotflow SDK on ESP32-C3, ESP32-C6, and ESP32-S3
 - remote logs over MQTT/TLS
 - system metrics plus application metrics in one firmware image
+- concrete Spotflow alert rules that trigger before the reboot
 - a reproducible button-triggered parser crash
 - board-specific coredump storage layout
 - one generic application flow across all supported boards
@@ -170,6 +171,37 @@ It also enables Spotflow system metrics for:
 
 Depending on board support, the generated build can also expose CPU utilization.
 
+## Alerting
+
+This example is designed so that Spotflow alerting can trigger before the crash, while the device is still degrading rather than after it has already rebooted.
+
+Good starter alert rules for this firmware are:
+
+- `sensor_data_age_ms > 1000` for the last 10 minutes, grouped by device ID
+- `sensor_read_failures > 0` for the last 10 minutes, grouped by device ID
+- `application_restarts > 0` for the last 1 hour, grouped by device ID
+
+These rules match the failure story in the firmware:
+
+- `sensor_data_age_ms` rises when backlog accumulates after retry storms
+- `sensor_read_failures` increments when malformed or corrupted frames appear
+- `application_restarts` increments after the deterministic crash and reboot
+
+### Set up alert rules in Spotflow
+
+1. Open [Alert Rules](https://app.spotflow.io/alerting/alert-rules?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_alert_rules) in the Spotflow web app.
+2. Click `+ Create Alert Rule`.
+3. Choose a threshold alert.
+4. Build a query for one of the metrics above and group by device ID.
+5. Set the evaluation window and threshold:
+   - `sensor_data_age_ms > 1000` over the last 10 minutes
+   - `sensor_read_failures > 0` over the last 10 minutes
+   - `application_restarts > 0` over the last 1 hour
+6. Add a notification target with the email addresses that should receive alert notifications.
+7. Save the rule and watch the evaluations on the alert-rule detail page.
+
+Start with these thresholds, then tune them for your real device behavior so that the rules catch genuine degradation without creating alert fatigue.
+
 ## Project structure
 
 ```text
@@ -207,6 +239,8 @@ esp32-industrial-sensor-observability/
 - [Why ESP32 Crashes](https://spotflow.io/blog/esp32-remote-logging-monitoring-debugging?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_blog_post) — the companion blog post
 - [Fundamentals: Logging](https://docs.spotflow.io/fundamentals/logging?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_fundamentals_logging) — remote logs and backend behavior
 - [Fundamentals: Metrics](https://docs.spotflow.io/fundamentals/metrics?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_fundamentals_metrics) — system vs. custom metrics
+- [Fundamentals: Alerts](https://docs.spotflow.io/fundamentals/alerts?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_fundamentals_alerts) — alert conditions, evaluation windows, and notification behavior
 - [Guide: Metrics with Zephyr](https://docs.spotflow.io/guides/zephyr/metrics-zephyr?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_guide_metrics_zephyr) — Zephyr integration reference
+- [Guide: Set Up Alerts](https://docs.spotflow.io/guides/alert-rules?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_guide_alert_rules) — create alert rules and notification targets in Spotflow
 - [Guide: Coredumps with Zephyr](https://docs.spotflow.io/guides/zephyr/coredumps-zephyr?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_guide_coredumps_zephyr) — crash report integration
 - [Spotflow Device SDK](https://github.com/spotflow-io/device-sdk) — SDK source and samples
