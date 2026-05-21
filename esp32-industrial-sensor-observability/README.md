@@ -188,20 +188,7 @@ These rules match the failure story in the firmware:
 - `sensor_read_failures` increments when malformed or corrupted frames appear
 - `application_restarts` increments after the deterministic crash and reboot
 
-### Set up alert rules in Spotflow
-
-1. Open [Alert Rules](https://app.spotflow.io/alerting/alert-rules?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_alert_rules) in the Spotflow web app.
-2. Click `+ Create Alert Rule`.
-3. Choose a threshold alert.
-4. Build a query for one of the metrics above and group by device ID.
-5. Set the evaluation window and threshold:
-   - `sensor_data_age_ms > 1000` over the last 10 minutes
-   - `sensor_read_failures > 0` over the last 10 minutes
-   - `application_restarts > 0` over the last 1 hour
-6. Add a notification target with the email addresses that should receive alert notifications.
-7. Save the rule and watch the evaluations on the alert-rule detail page.
-
-Start with these thresholds, then tune them for your real device behavior so that the rules catch genuine degradation without creating alert fatigue.
+Start with these thresholds, then tune them for your real device behavior so that the rules catch genuine degradation without creating alert fatigue. For instructions on creating alert rules and notification targets in Spotflow, see [Fundamentals: Alerts](https://docs.spotflow.io/fundamentals/alerts?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_fundamentals_alerts) and [Guide: Set Up Alerts](https://docs.spotflow.io/guides/alert-rules?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_guide_alert_rules).
 
 ## Project structure
 
