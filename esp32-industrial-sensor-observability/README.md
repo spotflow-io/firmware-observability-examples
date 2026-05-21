@@ -217,10 +217,7 @@ esp32-industrial-sensor-observability/
 
 ## Notes
 
-- The board fragments contain only board-specific technical settings such as flash layout, reconnect behavior, and coredump tuning.
-- The ESP32-S3 board in this example overrides the upstream Zephyr `N8` flash geometry to match tested 32 MB hardware.
-- This example uses MCUboot via `sysbuild` to avoid the ESP simple-boot ROM `SHA-256 comparison failed ... Attempting to boot anyway...` warning observed during earlier validation.
-- If you still see the ROM SHA-256 warning on your hardware, the firmware can still boot and run, but treat it as a boot-flow regression worth investigating.
+- This example uses MCUboot via `sysbuild` to avoid the ESP simple-boot ROM `SHA-256 comparison failed ... Attempting to boot anyway...` warning observed during earlier validation. If you still see that warning on your hardware, treat it as a boot-flow regression worth investigating.
 
 ## Related links
 
