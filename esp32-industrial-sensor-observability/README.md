@@ -186,7 +186,7 @@ These rules match the failure story in the firmware:
 
 - `sensor_data_age_ms` rises when backlog accumulates after retry storms
 - `sensor_read_failures` increments when malformed or corrupted frames appear
-- `application_restarts` increments after the deterministic crash and reboot
+- `application_restarts` increments on each application start, including after the deterministic crash and reboot
 
 Start with these thresholds, then tune them for your real device behavior so that the rules catch genuine degradation without creating alert fatigue. For instructions on creating alert rules and notification targets in Spotflow, see [Fundamentals: Alerts](https://docs.spotflow.io/fundamentals/alerts?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_fundamentals_alerts) and [Guide: Set Up Alerts](https://docs.spotflow.io/guides/alert-rules?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_guide_alert_rules).
 
