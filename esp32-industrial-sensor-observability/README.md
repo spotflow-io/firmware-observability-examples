@@ -1,7 +1,7 @@
 # ESP32 Industrial Sensor Observability
 
 > Companion code for the Spotflow blog post:
-> **[Why ESP32 Crashes](https://spotflow.io/blog/esp32-remote-logging-monitoring-debugging?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_blog_post)**
+> **[Debugging ESP32 Devices in the Field](https://spotflow.io/blog/esp32-remote-logging-monitoring-debugging?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_blog_post)**
 
 This example demonstrates how to instrument an ESP32 industrial sensor node with [Spotflow](https://docs.spotflow.io/?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_docs_intro) so you can investigate one field failure as one workflow built from four complementary signals:
 
@@ -10,7 +10,7 @@ This example demonstrates how to instrument an ESP32 industrial sensor node with
 - alerting before the reboot
 - crash reports after a reboot
 
-The scenario is intentionally concrete: a sensor node starts showing CRC errors, backlog growth, and retry storms before a malformed telemetry frame triggers an application crash.
+The scenario is intentionally concrete: a sensor node starts showing CRC errors, backlog growth, and repeated uplink retries before a malformed telemetry frame triggers an application crash.
 
 ## Runtime behavior
 
@@ -136,7 +136,7 @@ On a healthy boot you should see lines like these:
 
 During steady-state operation the node also emits warning-level signals that model the field failure:
 
-- `Sensor FIFO backlog grew to ... ms after retry storm`
+- `Sensor FIFO backlog grew to ... ms after repeated uplink retries`
 - `CRC mismatch on Modbus frame from remote probe head`
 
 ## Crash reproduction
@@ -184,7 +184,7 @@ Good starter alert rules for this firmware are:
 
 These rules match the failure story in the firmware:
 
-- `sensor_data_age_ms` rises when backlog accumulates after retry storms
+- `sensor_data_age_ms` rises when backlog accumulates after repeated uplink retries
 - `sensor_read_failures` increments when malformed or corrupted frames appear
 - `application_restarts` increments on each application start, including after the deterministic crash and reboot
 

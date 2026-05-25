@@ -172,7 +172,7 @@ static void maybe_inject_failures(void)
 {
 	if ((g_loop_count % 7) == 0) {
 		g_sensor_backlog_ms += 350;
-		LOG_WRN("Sensor FIFO backlog grew to %d ms after retry storm", g_sensor_backlog_ms);
+		LOG_WRN("Sensor FIFO backlog grew to %d ms after repeated uplink retries", g_sensor_backlog_ms);
 		report_event_metric(g_uplink_retry_metric, "uplink_retry_count");
 	}
 
