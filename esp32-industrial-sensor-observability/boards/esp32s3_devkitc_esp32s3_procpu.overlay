@@ -1,0 +1,10 @@
+#include "esp32_8M.dtsi"
+
+&flash0 {
+	/* The connected ESP32-S3 board exposes 32 MB flash, not the upstream N8 default. */
+	reg = <0x0 DT_SIZE_M(32)>;
+};
+
+&wifi {
+	status = "okay";
+};

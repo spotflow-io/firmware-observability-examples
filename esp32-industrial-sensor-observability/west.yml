@@ -1,0 +1,22 @@
+manifest:
+  projects:
+    # Zephyr RTOS - used by all ESP32 boards:
+    #   esp32c3_devkitc, esp32c6_devkitc_esp32c6_hpcore, esp32s3_devkitc_esp32s3_procpu
+    - name: zephyr
+      url: https://github.com/zephyrproject-rtos/zephyr
+      revision: v4.4.0
+      clone-depth: 1
+      import:
+        path-prefix: external
+        name-allowlist:
+          - hal_espressif
+          - mbedtls
+          - mcuboot
+          - zcbor
+          - mldsa-native
+          - tf-psa-crypto
+
+    - name: spotflow-device-sdk
+      url: https://github.com/spotflow-io/device-sdk
+      revision: main
+      path: external/modules/lib/spotflow
