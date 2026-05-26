@@ -18,7 +18,6 @@ static struct spotflow_metric_float *g_sensor_cycle_duration_metric;
 static struct spotflow_metric_int *g_sensor_read_failures_metric;
 static struct spotflow_metric_int *g_uplink_retry_metric;
 static struct spotflow_metric_float *g_sensor_data_age_metric;
-static struct spotflow_metric_int *g_application_restarts_metric;
 
 struct telemetry_frame {
 	uint8_t channel_count;
@@ -39,19 +38,6 @@ static bool g_repro_mode;
 static float rand_range(float min, float max)
 {
 	return min + ((float)(sys_rand32_get() % 1000) / 1000.0f) * (max - min);
-}
-
-static int report_application_restart(void)
-{
-	int rc = spotflow_register_metric_int(
-		"application_restarts",
-		SPOTFLOW_AGG_INTERVAL_NONE,
-		&g_application_restarts_metric);
-	if (rc < 0) {
-		return rc;
-	}
-
-	return spotflow_report_event(g_application_restarts_metric);
 }
 
 static int register_metrics(void)
@@ -86,11 +72,6 @@ static int register_metrics(void)
 		"sensor_data_age_ms",
 		SPOTFLOW_AGG_INTERVAL_NONE,
 		&g_sensor_data_age_metric);
-	if (rc < 0) {
-		return rc;
-	}
-
-	rc = report_application_restart();
 	if (rc < 0) {
 		return rc;
 	}

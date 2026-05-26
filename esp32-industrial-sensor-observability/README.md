@@ -152,22 +152,23 @@ The application then forces `channel_count = 7` in a frame that only contains th
 
 After reboot, the app reconnects to Wi-Fi and Spotflow and is ready to continue uploading logs, metrics, and crash artifacts.
 
-## Custom metrics
+## Metrics
 
-This example registers these application metrics:
+This example registers these custom application metrics:
 
 - `sensor_cycle_duration_ms`
 - `sensor_read_failures`
 - `uplink_retry_count`
 - `sensor_data_age_ms`
-- `application_restarts`
 
-It also enables Spotflow [system metrics](https://docs.spotflow.io/fundamentals/metrics?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_fundamentals_metrics_system_metrics#system-metrics) for:
+Boot resets are tracked using the Spotflow system metric `boot_reset`. This metric is collected automatically by the Spotflow device module on every boot, with no registration or reporting code required in the application.
+
+It also enables the following Spotflow [system metrics](https://docs.spotflow.io/fundamentals/metrics?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_fundamentals_metrics_system_metrics#system-metrics), all collected automatically:
 
 - heap
 - network traffic
 - connection state
-- reset cause
+- reset cause (`boot_reset`)
 - thread stack usage
 
 Depending on board support, the generated build can also expose CPU utilization.
@@ -180,13 +181,13 @@ Good starter alert rules for this firmware are:
 
 - `sensor_data_age_ms > 1000` for the last 10 minutes, grouped by device ID
 - `sensor_read_failures > 0` for the last 10 minutes, grouped by device ID
-- `application_restarts > 0` for the last 1 hour, grouped by device ID
+- `boot_reset > 0` for the last 1 hour, grouped by device ID
 
 These rules match the failure story in the firmware:
 
 - `sensor_data_age_ms` rises when backlog accumulates after repeated uplink retries
 - `sensor_read_failures` increments when malformed or corrupted frames appear
-- `application_restarts` increments on each application start, including after the deterministic crash and reboot
+- `boot_reset` is the Spotflow system metric for reset cause, reported automatically by the device module on every boot. It confirms that the device has crossed from degraded into unstable
 
 Start with these thresholds, then tune them for your real device behavior so that the rules catch genuine degradation without creating alert fatigue. For instructions on creating alert rules and notification targets in Spotflow, see [Fundamentals: Alerts](https://docs.spotflow.io/fundamentals/alerts?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_fundamentals_alerts) and [Guide: Set Up Alerts](https://docs.spotflow.io/guides/alert-rules?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_guide_alert_rules).
 
