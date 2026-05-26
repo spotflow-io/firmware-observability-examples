@@ -192,28 +192,11 @@ Start with these thresholds, then tune them for your real device behavior so tha
 
 ## Project structure
 
-```text
-esp32-industrial-sensor-observability/
-├── .west/config
-├── CMakeLists.txt
-├── Kconfig
-├── prj.conf
-├── west.yml
-├── credentials-sample.conf
-├── boards/
-│   ├── esp32_8M.dtsi
-│   ├── esp32c3_devkitc.conf
-│   ├── esp32c3_devkitc.overlay
-│   ├── esp32c6_devkitc_esp32c6_hpcore.conf
-│   ├── esp32c6_devkitc_esp32c6_hpcore.overlay
-│   ├── esp32s3_devkitc_esp32s3_procpu.conf
-│   └── esp32s3_devkitc_esp32s3_procpu.overlay
-└── src/
-    ├── main.c
-    ├── sensor_node.c
-    ├── sensor_node.h
-    └── net/
-```
+- `src/main.c` — entry point: button setup, network init, and the main sensor loop
+- `src/sensor_node.c` — metric registration, sensor simulation, failure injection, and the intentional crash path
+- `boards/` — per-board Kconfig fragments and devicetree overlays (flash layout, coredump partition, button GPIO)
+- `west.yml` — pinned dependency manifest (Zephyr, Spotflow SDK)
+- `credentials-sample.conf` — template for Wi-Fi and Spotflow credentials
 
 ## Notes
 

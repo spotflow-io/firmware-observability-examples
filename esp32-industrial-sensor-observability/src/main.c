@@ -17,8 +17,6 @@ LOG_MODULE_REGISTER(esp32_sensor_main, LOG_LEVEL_INF);
 static const struct gpio_dt_spec button = GPIO_DT_SPEC_GET_OR(SW0_NODE, gpios, { 0 });
 static struct gpio_callback button_cb_data;
 
-static int prepare_button(void);
-
 static void button_pressed(const struct device *dev, struct gpio_callback *cb, uint32_t pins)
 {
 	ARG_UNUSED(dev);
