@@ -3,13 +3,13 @@
 > Companion code for the Spotflow blog post:
 > **[Debugging a Zephyr RTOS Crash with Spotflow AI Analysis](https://spotflow.io/blog/zephyr-crash-debugging)**
 
-This example shows how to instrument a Zephyr RTOS application so that when a crash occurs in the field, [Spotflow](https://docs.spotflow.io/) automatically collects the core dump, and the built-in AI analysis identifies the root cause — without a serial cable.
+This example shows how to instrument a Zephyr RTOS application so that when a crash occurs in the field, [Spotflow](https://docs.spotflow.io/) automatically collects the core dump, and the built-in AI analysis identifies the root cause, eliminating the need for a serial cable.
 
 Tested on: **NXP FRDM-RW612**. The patterns apply to any Zephyr board supported by the Spotflow device module.
 
 ## What this example demonstrates
 
-- Zephyr RTOS core dump collection via `CONFIG_SPOTFLOW_COREDUMPS=y` — three Kconfig lines
+- Zephyr RTOS core dump collection via `CONFIG_SPOTFLOW_COREDUMPS=y` (three Kconfig lines)
 - Automatic crash upload on the next boot, over MQTT/TLS
 - Remote logs (`LOG_WRN`, `LOG_ERR`) showing the warning pattern before the crash
 - Application metrics: `temperature_celsius` and `read_errors`
@@ -19,7 +19,7 @@ Tested on: **NXP FRDM-RW612**. The patterns apply to any Zephyr board supported 
 
 ## Crash scenario
 
-The application simulates a temperature monitoring node. An alert callback (`g_alert_callback`) is never registered on this device variant — it was provisioned as a sensor-only unit. The firmware calls the callback unconditionally when temperature exceeds the threshold, without checking for `NULL`. This is a realistic pattern: conditionally registered callbacks called from a shared processing path.
+The application simulates a temperature monitoring node. An alert callback (`g_alert_callback`) is never registered on this device variant, it was provisioned as a sensor-only unit. The firmware calls the callback unconditionally when temperature exceeds the threshold, without checking for `NULL`. This is a realistic pattern: conditionally registered callbacks called from a shared processing path.
 
 Crash path:
 
@@ -31,11 +31,11 @@ Crash path:
 
 ## Hardware
 
-[NXP FRDM-RW612](https://docs.zephyrproject.org/latest/boards/nxp/frdm_rw612/doc/index.html) — ARM Cortex-M33, 260 MHz, 1.2 MB SRAM, Wi-Fi 6, built-in QSPI flash.
+[NXP FRDM-RW612](https://docs.zephyrproject.org/latest/boards/nxp/frdm_rw612/doc/index.html): ARM Cortex-M33, 260 MHz, 1.2 MB SRAM, Wi-Fi 6, built-in QSPI flash.
 
 ## Prerequisites
 
-- A Spotflow account and [ingest key](https://docs.spotflow.io/fundamentals/device-authorization) — [sign up for free](https://app.spotflow.io/signup)
+- A Spotflow account and [ingest key](https://docs.spotflow.io/fundamentals/device-authorization): [sign up for free](https://app.spotflow.io/signup)
 - Git
 - Python 3.12+
 
@@ -148,23 +148,23 @@ See [Firmware Management](https://docs.spotflow.io/fundamentals/firmware-managem
 
 Custom application metrics registered by this example:
 
-- `temperature_celsius` — raw temperature reading every 2 s
-- `read_errors` — event fired on simulated I2C read timeout
+- `temperature_celsius`: raw temperature reading every 2 s
+- `read_errors`: event fired on simulated I2C read timeout
 
 System metrics collected automatically (no application code required):
 
-- `boot_reset` — reset cause on every boot
+- `boot_reset`: reset cause on every boot
 - `heap_free_bytes`, `cpu_utilization_percent`, `connection_mqtt_connected`, and others
 
 ## Project structure
 
-- `src/main.c` — entry point: button setup, network init, main sensor loop
-- `src/sensor_node.c` — metric registration, sensor simulation, and the crash path
-- `boards/frdm_rw612.conf` — board-specific Kconfig fragment
-- `boards/frdm_rw612.overlay` — coredump flash partition (2 MiB at end of W25Q512JV)
-- `src/net/` — Wi-Fi / Ethernet connectivity, shared from the observability examples collection
-- `west.yml` — pinned dependency manifest (Zephyr v4.4.0, Spotflow Device SDK)
-- `credentials-sample.conf` — template for Wi-Fi and Spotflow credentials
+- `src/main.c`: entry point: button setup, network init, main sensor loop
+- `src/sensor_node.c`: metric registration, sensor simulation, and the crash path
+- `boards/frdm_rw612.conf`: board-specific Kconfig fragment
+- `boards/frdm_rw612.overlay`: coredump flash partition (2 MiB at end of W25Q512JV)
+- `src/net/`: Wi-Fi / Ethernet connectivity, shared from the observability examples collection
+- `west.yml`: pinned dependency manifest (Zephyr v4.4.0, Spotflow Device SDK)
+- `credentials-sample.conf`: template for Wi-Fi and Spotflow credentials
 
 ## Related links
 
