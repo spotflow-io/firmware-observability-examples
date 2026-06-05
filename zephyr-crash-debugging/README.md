@@ -24,7 +24,7 @@ The application simulates a temperature monitoring node. An alert callback (`g_a
 Crash path:
 
 1. Press the user button (SW2)
-2. Threshold is lowered to 20 °C — below the simulated 28–34 °C range
+2. Threshold is lowered to 20 °C, below the simulated 28–34 °C range
 3. After 3 loop iterations, `check_threshold()` calls `g_alert_callback(temp)` → `NULL` function pointer → fatal fault
 4. Zephyr saves the core dump to the `coredump-partition` in flash
 5. After reboot, Spotflow uploads the core dump and AI analysis is available within seconds
