@@ -1,0 +1,32 @@
+/*
+ * Reserve 2 MiB at the end of the W25Q512JV (64 MiB) flash for coredump storage.
+ *
+ * Original storage_partition starts at 0x620000 and spans the remainder of the
+ * 64 MiB flash.  We shrink it by 2 MiB and place the coredump_partition in that
+ * reclaimed space.
+ *
+ * Partition map after this overlay:
+ *   boot_partition    0x00000000  128 KiB   (MCUboot, unchanged)
+ *   slot0_partition   0x00020000    3 MiB   (application, unchanged)
+ *   slot1_partition   0x00320000    3 MiB   (OTA slot, unchanged)
+ *   storage_partition 0x00620000  ~55.9 MiB (NVS / settings)
+ *   coredump_partition 0x03E00000   2 MiB   (Zephyr coredump backend)
+ *
+ * All offsets are aligned to the 4 KiB erase-block size of the W25Q512JV.
+ */
+
+/delete-node/ &storage_partition;
+
+&w25q512jvfiq {
+	partitions {
+		storage_partition: partition@620000 {
+			label = "storage";
+			reg = <0x00620000 0x037E0000>;
+		};
+
+		coredump_partition: partition@3e00000 {
+			label = "coredump-partition";
+			reg = <0x03e00000 DT_SIZE_M(2)>;
+		};
+	};
+};
