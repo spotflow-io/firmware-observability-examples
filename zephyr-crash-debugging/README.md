@@ -38,6 +38,7 @@ Crash path:
 - A Spotflow account and [ingest key](https://docs.spotflow.io/fundamentals/device-authorization): [sign up for free](https://app.spotflow.io/signup)
 - Git
 - Python 3.12+
+- If you don’t have Zephyr dependencies already installed, refer to the official [Getting Started Guide](https://docs.zephyrproject.org/latest/develop/getting_started/index.html#install-dependencies) for the instructions on how to install them for your operating system.
 
 ## Setup
 
@@ -75,7 +76,16 @@ The manifest is pinned to:
 west sdk install --version 1.0.1 --toolchains arm-zephyr-eabi
 ```
 
-### Step 4: Configure the application
+### Step 4: Download required binary blobs
+
+Board-dependent binary blobs are required for some hardware targets.
+
+```sh
+# NXP FRDM-RW612: signed Wi-Fi/BLE firmware blobs
+west blobs fetch hal_nxp --auto-accept
+```
+
+### Step 5: Configure the application
 
 Copy `credentials-sample.conf` to `credentials.conf` and fill in your values:
 
