@@ -128,7 +128,7 @@ On a healthy boot:
 
 Press the user button (**SW2**) on the FRDM-RW612.
 
-You should then see:
+With `LOG_WRN` instrumented before the callback in `check_threshold()`, your log stream captures the pre-crash warning sequence:
 
 ```
 [...] <wrn> main: User button pressed. Arming reproducible crash path.
@@ -141,6 +141,8 @@ You should then see:
 [...] <wrn> sensor_node: Temperature threshold exceeded: 32.8 C (threshold: 20.0 C)
 *** Zephyr Fatal Error ***
 ```
+
+The `Temperature threshold exceeded` warnings give you the exact temperature and threshold at the moment of the fault. They appear in Spotflow's remote log view before the core dump is uploaded, so you have a chain of evidence even before the AI analysis is ready.
 
 After reboot, the device reconnects and Spotflow uploads the core dump. The crash report with AI analysis is available in the [Events](https://app.spotflow.io/) page within seconds.
 

@@ -22,12 +22,12 @@ static struct spotflow_metric_int   *g_read_errors_metric;
  * into an alerting backend.
  *
  * The firmware calls the callback unconditionally whenever the threshold is
- * exceeded — a classic null-function-pointer bug.
+ * exceeded: a classic null-function-pointer bug.
  */
 typedef void (*alert_fn_t)(float temp_celsius);
 
 static alert_fn_t g_alert_callback = NULL; /* not configured on this device */
-static float      g_temp_threshold  = 40.0f; /* °C — safe under normal conditions */
+static float      g_temp_threshold  = 40.0f; /* degrees C, safe under normal conditions */
 static bool       g_repro_mode      = false;
 static int        g_loop_count      = 0;
 
@@ -39,7 +39,7 @@ static float rand_range(float min, float max)
 }
 
 /*
- * check_threshold — called every sensor cycle when repro mode is armed.
+ * check_threshold: called every sensor cycle when repro mode is armed.
  *
  * BUG: g_alert_callback is NULL (alert handler not registered on this
  * device).  This models a real pattern: a callback is registered only on
@@ -49,9 +49,16 @@ static float rand_range(float min, float max)
 static void check_threshold(float temp_celsius)
 {
 	if (temp_celsius > g_temp_threshold) {
+		/*
+		 * Always log before invoking the callback.  If the callback
+		 * crashes the device, this entry is already in Spotflow's remote
+		 * log stream: it gives you the exact temperature and threshold
+		 * that triggered the fault, without any additional post-mortem
+		 * work.
+		 */
 		LOG_WRN("Temperature threshold exceeded: %.1f C (threshold: %.1f C)",
 			(double)temp_celsius, (double)g_temp_threshold);
-		/* NULL dereference — fatal fault on next line */
+		/* NULL dereference: fatal fault on next line */
 		g_alert_callback(temp_celsius);
 	}
 }
@@ -121,5 +128,5 @@ void sensor_node_trigger_repro_crash(void)
 	LOG_WRN("Crash path armed. Lowering temperature threshold to 20.0 C.");
 	g_repro_mode     = true;
 	g_loop_count     = 0;
-	g_temp_threshold = 20.0f; /* below normal range — will trigger on next cycle */
+	g_temp_threshold = 20.0f; /* below normal range, will trigger on next cycle */
 }
