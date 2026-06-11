@@ -9,7 +9,7 @@ Tested on: **NXP FRDM-RW612**. The patterns apply to any Zephyr board supported 
 
 ## What this example demonstrates
 
-- Zephyr RTOS core dump collection via `CONFIG_SPOTFLOW_COREDUMPS=y` (three Kconfig lines)
+- Zephyr RTOS core dump collection via `CONFIG_SPOTFLOW_COREDUMPS=y`
 - Automatic crash upload on the next boot, over MQTT/TLS
 - Remote logs (`LOG_WRN`, `LOG_ERR`) showing the warning pattern before the crash
 - Application metrics: `temperature_celsius` and `read_errors`
@@ -148,13 +148,7 @@ After reboot, the device reconnects and Spotflow uploads the core dump. The cras
 
 ## Upload ELF for AI symbol resolution
 
-To unlock full symbol names and variable values in the AI analysis, upload the ELF file with debug symbols to Spotflow:
-
-```sh
-west spotflow upload-elf build/zephyr/zephyr.elf
-```
-
-See [Firmware Management](https://docs.spotflow.io/fundamentals/firmware-management) for details.
+To unlock full symbol names and variable values in the AI analysis, upload the ELF file with debug symbols to Spotflow. See [Firmware Management](https://docs.spotflow.io/fundamentals/firmware-management) for details.
 
 ## Metrics
 
