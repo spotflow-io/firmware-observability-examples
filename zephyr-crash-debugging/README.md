@@ -11,7 +11,7 @@ Tested on: **NXP FRDM-RW612**. The patterns apply to any Zephyr board supported 
 
 - Zephyr RTOS core dump collection via `CONFIG_SPOTFLOW_COREDUMPS=y`
 - Automatic crash upload on the next boot, over MQTT/TLS
-- Remote logs (`LOG_WRN`, `LOG_ERR`) showing the warning pattern before the crash
+- Application logs (`LOG_WRN`, `LOG_ERR`) visible in the local serial/RTT output during development
 - Application metrics: `temperature_celsius` and `read_errors`
 - System metrics collected automatically: `boot_reset`, heap, CPU, connection state
 - **Spotflow AI Crash Analysis**: stack traces + register values + plain-language root cause explanation
@@ -124,11 +124,17 @@ On a healthy boot:
 ...
 ```
 
+## Upload ELF for full AI symbol resolution
+
+Before triggering a crash, upload `build/zephyr/zephyr.elf` to Spotflow via the [Firmware Management](https://app.spotflow.io/) page. Without it, stack frames show only raw addresses and the AI analysis has no function or variable names to work with.
+
+See [Upload ELF file with symbols](https://docs.spotflow.io/guides/zephyr/crash-reports-zephyr#recommended-upload-elf-file-with-symbols) for step-by-step instructions. Spotflow links the ELF to the core dump automatically using the build ID embedded in both files.
+
 ## Crash reproduction
 
 Press the user button (**SW2**) on the FRDM-RW612.
 
-With `LOG_WRN` instrumented before the callback in `check_threshold()`, your log stream captures the pre-crash warning sequence:
+Your local serial/RTT output shows the full fault sequence:
 
 ```
 [...] <wrn> main: User button pressed. Arming reproducible crash path.
@@ -142,13 +148,7 @@ With `LOG_WRN` instrumented before the callback in `check_threshold()`, your log
 *** Zephyr Fatal Error ***
 ```
 
-The `Temperature threshold exceeded` warnings give you the exact temperature and threshold at the moment of the fault. They appear in Spotflow's remote log view before the core dump is uploaded, so you have a chain of evidence even before the AI analysis is ready.
-
 After reboot, the device reconnects and Spotflow uploads the core dump. The crash report with AI analysis is available in the [Events](https://app.spotflow.io/) page within seconds.
-
-## Upload ELF for AI symbol resolution
-
-To unlock full symbol names and variable values in the AI analysis, upload the ELF file with debug symbols to Spotflow. See [Firmware Management](https://docs.spotflow.io/fundamentals/firmware-management) for details.
 
 ## Metrics
 

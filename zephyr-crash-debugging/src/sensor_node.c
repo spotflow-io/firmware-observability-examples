@@ -49,13 +49,6 @@ static float rand_range(float min, float max)
 static void check_threshold(float temp_celsius)
 {
 	if (temp_celsius > g_temp_threshold) {
-		/*
-		 * Always log before invoking the callback.  If the callback
-		 * crashes the device, this entry is already in Spotflow's remote
-		 * log stream: it gives you the exact temperature and threshold
-		 * that triggered the fault, without any additional post-mortem
-		 * work.
-		 */
 		LOG_WRN("Temperature threshold exceeded: %.1f C (threshold: %.1f C)",
 			(double)temp_celsius, (double)g_temp_threshold);
 		/* NULL dereference: fatal fault on next line */
