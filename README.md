@@ -26,6 +26,7 @@ Spotflow integrates with [Zephyr RTOS](https://www.zephyrproject.org/) and [nRF 
 |---------|----------|-----------|
 | [smart-lock-fleet](./smart-lock-fleet/) | Zephyr RTOS | [Custom Metrics & Dashboards for Embedded Devices](https://spotflow.io/blog/custom-metrics-dashboards-embedded-devices?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_readme&utm_content=link_blog_smart_lock) |
 | [esp32-industrial-sensor-observability](./esp32-industrial-sensor-observability/) | Zephyr RTOS | [Debugging ESP32 Devices in the Field](https://spotflow.io/blog/esp32-remote-logging-monitoring-debugging?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_readme&utm_content=link_blog_esp32_industrial_sensor) |
+| [zephyr-crash-debugging](./zephyr-crash-debugging/) | Zephyr RTOS | [Debugging a Zephyr RTOS Crash with Spotflow AI Analysis](https://spotflow.io/blog/zephyr-crash-debugging?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_readme&utm_content=link_blog_zephyr_crash) |
 
 ---
 
