@@ -1,0 +1,22 @@
+manifest:
+  projects:
+    # Zephyr RTOS - FRDM-RW612 (NXP RW612)
+    - name: zephyr
+      url: https://github.com/zephyrproject-rtos/zephyr
+      revision: v4.4.0
+      clone-depth: 1
+      import:
+        path-prefix: external
+        name-allowlist:
+          - cmsis_6
+          - hal_nxp
+          - mbedtls
+          - mcuboot
+          - zcbor
+          - mldsa-native
+          - tf-psa-crypto
+
+    - name: spotflow-device-sdk
+      url: https://github.com/spotflow-io/device-sdk
+      revision: feature/fota
+      path: external/modules/lib/spotflow
