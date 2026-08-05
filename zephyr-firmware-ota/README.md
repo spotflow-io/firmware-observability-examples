@@ -81,7 +81,7 @@ west blobs fetch hal_nxp --auto-accept
 
 ### Step 5: Configure the application
 
-Copy `credentials-sample.conf` to `credentials.conf` and fill in your values:
+Copy `credentials-sample.conf` to `credentials.conf`:
 
 ```sh
 cp credentials-sample.conf credentials.conf
