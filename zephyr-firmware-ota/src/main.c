@@ -85,8 +85,6 @@ static void confirm_unconfirmed_main_firmware(void)
 /* ---- OTA callbacks ---- */
 
 /*
- * spotflow_on_main_firmware_update_progressed
- *
  * The SDK calls this on the OTA worker thread whenever the automatic main
  * firmware update moves to a new phase.  Use it to log progress, update an
  * LED, or pause the update when the device is busy.
