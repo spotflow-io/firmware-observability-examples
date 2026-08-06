@@ -1,7 +1,7 @@
 # Zephyr Firmware OTA with Spotflow
 
 > Companion code for the Spotflow blog post:
-> **[Remote Firmware Updates on Zephyr RTOS with Spotflow OTA](https://spotflow.io/blog/zephyr-ota-frdm-rw612)**
+> **[Over-the-Air Firmware Updates on Zephyr RTOS with Spotflow](https://spotflow.io/blog/zephyr-firmware-ota)**
 
 This example shows how to integrate Spotflow OTA updates into a Zephyr RTOS application running on an [NXP FRDM-RW612](https://docs.zephyrproject.org/latest/boards/nxp/frdm_rw612/doc/index.html). With a few lines of code and a single deployment in the Spotflow portal, the device downloads and applies a firmware update over Wi-Fi, without physical access.
 
@@ -9,13 +9,13 @@ Tested on: **NXP FRDM-RW612**. The OTA integration patterns apply to any Zephyr 
 
 ## What this example demonstrates
 
-- Automatic main firmware OTA via `CONFIG_SPOTFLOW_OTA_AUTO_HANDLE_MAIN_FIRMWARE=y`
+- Automatic main firmware OTA updates via `CONFIG_SPOTFLOW_OTA_AUTO_HANDLE_MAIN_FIRMWARE=y`
 - Image confirmation after reboot: `spotflow_confirm_main_firmware_image()`
 - MCUboot test mode and automatic rollback on failure
 - Progress observation via `spotflow_on_main_firmware_update_progressed()`
 - Application metrics: `temperature_celsius` reported every 2 s
 - System metrics collected automatically: `boot_reset`, heap, CPU, connection state
-- No board overlay required: the FRDM-RW612 DTS already defines MCUboot OTA slots
+- No board overlay required: the FRDM-RW612 DTS already defines MCUboot image slots
 
 ## Scenario
 
@@ -50,7 +50,7 @@ source .venv/bin/activate
 pip install west
 ```
 
-### Step 2: Fetch the pinned dependencies
+### Step 2: Fetch the dependencies
 
 `.west/config` is already committed and points to `west.yml`, so no `west init` step is needed.
 
@@ -61,10 +61,10 @@ west update --fetch-opt=--depth=1 --narrow
 west packages pip --install
 ```
 
-The manifest is pinned to:
+The manifest uses:
 
-- Zephyr `v4.4.0`
-- Spotflow Device SDK `feature/fota` (changes to `main` on release)
+- Zephyr `v4.4.0` (pinned)
+- Spotflow Device SDK `feature/fota` branch (will track `main` on release)
 
 ### Step 3: Install the Zephyr SDK toolchain
 
@@ -149,7 +149,7 @@ The OTA image to upload is:
 build-v2/zephyr-firmware-ota/zephyr/zephyr.signed.bin
 ```
 
-Follow the [Spotflow OTA deployment guide](https://docs.spotflow.io/guides/ota) to:
+Follow the [Spotflow OTA update deployment guide](https://docs.spotflow.io/guides/ota) to:
 
 1. Upload the signed image to a new firmware version on the [Firmwares](https://app.spotflow.io/firmwares) page.
 2. Create a deployment cohort and add your device.
@@ -190,7 +190,7 @@ The device then reports success to the Spotflow portal and the deployment shows 
 
 ## Related links
 
-- [Blog post: Remote Firmware Updates on Zephyr RTOS with Spotflow OTA](https://spotflow.io/blog/zephyr-ota-frdm-rw612)
+- [Blog post: Over-the-Air Firmware Updates on Zephyr RTOS with Spotflow](https://spotflow.io/blog/zephyr-firmware-ota)
 - [Guide: Over-the-air (OTA) updates with Zephyr](https://docs.spotflow.io/guides/zephyr/ota-zephyr)
 - [Guide: Deploy Over-the-Air (OTA) Updates](https://docs.spotflow.io/guides/ota)
 - [Fundamentals: Over-the-air (OTA) updates](https://docs.spotflow.io/fundamentals/ota)
