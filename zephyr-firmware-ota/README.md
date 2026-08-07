@@ -64,7 +64,7 @@ west packages pip --install
 The manifest uses:
 
 - Zephyr `v4.4.0` (pinned)
-- Spotflow Device SDK `feature/fota` branch (will track `main` on release)
+- Spotflow Device SDK `main` branch
 
 ### Step 3: Install the Zephyr SDK toolchain
 
