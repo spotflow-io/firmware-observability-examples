@@ -118,7 +118,7 @@ I: Secondary image: magic=unset, swap_type=0x1, copy_done=0x3, image_ok=0x3
 I: Jumping to the first image slot
 *** Booting Zephyr OS build v4.4.0 ***
 [00:00:04] <inf> main: main: Temperature sensor node v1.0.0 starting
-[00:00:04] <inf> main: confirm_unconfirmed_main_firmware: OTA state: NOT_RUNNING
+[00:00:04] <inf> main: confirm_unconfirmed_main_firmware: OTA phase: NOT_RUNNING
 [00:00:05] <inf> spotflow_sample_net: spotflow_sample_net_init: Initializing Wi-Fi...
 [00:00:06] <inf> main: main: Sensor loop running — ready to receive OTA updates
 [00:00:06] <inf> main: main: Temperature: 30.5 C
