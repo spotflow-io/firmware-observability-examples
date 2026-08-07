@@ -1,0 +1,7 @@
+build/
+build-v1/
+build-v2/
+.venv/
+external/
+credentials.conf
+.cache/
