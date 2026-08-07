@@ -60,7 +60,7 @@ static void confirm_unconfirmed_main_firmware(void)
 	}
 
 	if (state.phase != SPOTFLOW_OTA_PHASE_UNCONFIRMED) {
-		LOG_INF("OTA phase: %s", ota_phase_name(state.phase));
+		LOG_INF("OTA state: %s", ota_phase_name(state.phase));
 		return;
 	}
 
