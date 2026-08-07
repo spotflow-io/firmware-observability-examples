@@ -18,5 +18,5 @@ manifest:
 
     - name: spotflow-device-sdk
       url: https://github.com/spotflow-io/device-sdk
-      revision: feature/fota
+      revision: main
       path: external/modules/lib/spotflow
