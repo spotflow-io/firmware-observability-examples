@@ -1,0 +1,5 @@
+build/
+.venv/
+external/
+credentials.conf
+.cache/
