@@ -28,6 +28,10 @@ static lv_obj_t *uptime_label;
 static lv_obj_t *ip_label;
 static lv_obj_t *errors_label;
 static lv_obj_t *status_label;
+static lv_obj_t *alarm_label;
+
+/* Cabinet safe upper limit, mirrored from fridge_monitor.c for display state. */
+#define UI_SAFE_MAX_CELSIUS 8.0f
 
 /*
  * On-screen "SIMULATE EXCURSION" button. Drives the same temperature excursion
@@ -85,6 +89,23 @@ static void build_ui(void)
 	lv_obj_set_style_text_color(device, lv_color_hex(0x5b6f84), 0);
 	lv_obj_align(device, LV_ALIGN_BOTTOM_LEFT, 12, -14);
 
+	/*
+	 * Alarm banner, top-right (free area above the button). Hidden in normal
+	 * operation; shown amber while the cabinet is warming and red once it is
+	 * above the safe limit, so a button press has visible on-screen feedback
+	 * before the fault.
+	 */
+	alarm_label = lv_label_create(scr);
+	lv_obj_set_style_text_font(alarm_label, &lv_font_montserrat_28, 0);
+	lv_obj_set_style_text_color(alarm_label, lv_color_hex(0xffffff), 0);
+	lv_obj_set_style_bg_color(alarm_label, lv_color_hex(0xd21f1f), 0);
+	lv_obj_set_style_bg_opa(alarm_label, LV_OPA_COVER, 0);
+	lv_obj_set_style_pad_all(alarm_label, 8, 0);
+	lv_obj_set_style_radius(alarm_label, 6, 0);
+	lv_obj_set_style_text_align(alarm_label, LV_TEXT_ALIGN_CENTER, 0);
+	lv_obj_align(alarm_label, LV_ALIGN_TOP_RIGHT, -14, 92);
+	lv_obj_add_flag(alarm_label, LV_OBJ_FLAG_HIDDEN);
+
 	lv_obj_t *btn = lv_button_create(scr);
 	lv_obj_set_size(btn, 200, 64);
 	lv_obj_align(btn, LV_ALIGN_BOTTOM_RIGHT, -14, -14);
@@ -101,8 +122,31 @@ static void update_ui(void)
 {
 	char buf[40];
 
-	snprintf(buf, sizeof(buf), "%.1f C", (double)fridge_monitor_last_temp());
+	float temp = fridge_monitor_last_temp();
+	bool excursion = fridge_monitor_in_excursion();
+
+	snprintf(buf, sizeof(buf), "%.1f C", (double)temp);
 	lv_label_set_text(temp_label, buf);
+
+	/*
+	 * Colour the temperature and raise the alarm banner so a triggered excursion
+	 * is obvious on the LCD: green in normal operation, amber while warming,
+	 * red once the cabinet is above its safe limit.
+	 */
+	if (excursion && temp > UI_SAFE_MAX_CELSIUS) {
+		lv_obj_set_style_text_color(temp_label, lv_color_hex(0xff5555), 0);
+		lv_label_set_text(alarm_label, "ALARM\nAbove safe limit");
+		lv_obj_set_style_bg_color(alarm_label, lv_color_hex(0xd21f1f), 0);
+		lv_obj_clear_flag(alarm_label, LV_OBJ_FLAG_HIDDEN);
+	} else if (excursion) {
+		lv_obj_set_style_text_color(temp_label, lv_color_hex(0xffcc00), 0);
+		lv_label_set_text(alarm_label, "EXCURSION\nCabinet warming");
+		lv_obj_set_style_bg_color(alarm_label, lv_color_hex(0xb26a00), 0);
+		lv_obj_clear_flag(alarm_label, LV_OBJ_FLAG_HIDDEN);
+	} else {
+		lv_obj_set_style_text_color(temp_label, lv_color_hex(0x35d07f), 0);
+		lv_obj_add_flag(alarm_label, LV_OBJ_FLAG_HIDDEN);
+	}
 
 	uint32_t up = (uint32_t)(k_uptime_get() / 1000);
 	snprintf(buf, sizeof(buf), "Uptime: %02u:%02u:%02u",
@@ -113,23 +157,31 @@ static void update_ui(void)
 	lv_label_set_text(errors_label, buf);
 
 	char ipstr[NET_IPV4_ADDR_LEN] = "-";
-	bool online = false;
 	struct net_if *iface = net_if_get_default();
-	if (iface != NULL) {
-		struct in_addr *addr = net_if_ipv4_get_global_addr(iface, NET_ADDR_PREFERRED);
+	bool link = (iface != NULL) && net_if_is_carrier_ok(iface);
+	struct in_addr *addr = NULL;
+
+	if (link) {
+		addr = net_if_ipv4_get_global_addr(iface, NET_ADDR_PREFERRED);
 		if (addr != NULL) {
 			net_addr_ntop(AF_INET, addr, ipstr, sizeof(ipstr));
-			online = true;
 		}
 	}
 	snprintf(buf, sizeof(buf), "IP: %s", ipstr);
 	lv_label_set_text(ip_label, buf);
 
 	/*
-	 * The SDK has no public "MQTT connected" query, so the display reports what
-	 * it can see for itself: whether the interface has an address.
+	 * The SDK has no public "MQTT connected" query, so the display reports the
+	 * link and address state it can see for itself. Carrier (NET_IF_LOWER_UP)
+	 * tracks the Ethernet cable, so unplugging it flips the status to "offline".
 	 */
-	if (online) {
+	if (!link) {
+		lv_label_set_text(status_label, "Network: offline");
+		lv_obj_set_style_text_color(status_label, lv_color_hex(0xd21f1f), 0);
+	} else if (addr == NULL) {
+		lv_label_set_text(status_label, "Network: waiting for DHCP...");
+		lv_obj_set_style_text_color(status_label, lv_color_hex(0xffcc00), 0);
+	} else {
 		lv_label_set_text(status_label, "Network: online");
 		lv_obj_set_style_text_color(status_label, lv_color_hex(0x35d07f), 0);
 	}

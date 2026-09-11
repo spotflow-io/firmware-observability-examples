@@ -58,6 +58,12 @@ static void check_temperature(float temp_celsius)
 	if (temp_celsius > SAFE_MAX_CELSIUS) {
 		LOG_WRN("Cabinet temperature above safe limit: %.1f C (limit: %.1f C)",
 			(double)temp_celsius, (double)SAFE_MAX_CELSIUS);
+		/*
+		 * Give the display one refresh to show the alarm state before the
+		 * (buggy) handler runs, so on the LCD the fault reads as an alarm and
+		 * reboot rather than an instant, unexplained screen blank.
+		 */
+		k_sleep(K_MSEC(1500));
 		/* NULL dereference: fatal fault on next line */
 		g_alarm_callback(temp_celsius);
 	}
@@ -107,10 +113,19 @@ void fridge_monitor_step(void)
 
 	/*
 	 * Simulate the cabinet temperature. Normally 2-6 C. After an excursion is
-	 * triggered (door left open / compressor fault) the cabinet warms into the
-	 * 9-13 C range, past the safe limit.
+	 * triggered (door left open / compressor fault) the cabinet warms up
+	 * gradually, about 1.5 C per 2 s cycle, so the climb past the 8 C limit is
+	 * visible on the LCD for a few seconds before the alarm faults.
 	 */
-	float temp = g_excursion ? rand_range(9.0f, 13.0f) : rand_range(2.0f, 6.0f);
+	float temp;
+	if (g_excursion) {
+		temp = g_last_temp + rand_range(1.2f, 1.8f);
+		if (temp > 13.0f) {
+			temp = 13.0f;
+		}
+	} else {
+		temp = rand_range(2.0f, 6.0f);
+	}
 	g_last_temp = temp;
 
 	int rc = spotflow_report_metric_float(g_temperature_metric, temp);

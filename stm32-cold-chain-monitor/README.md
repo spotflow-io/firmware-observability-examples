@@ -16,7 +16,7 @@ Tested on: **STMicroelectronics STM32F746G-DISCO** (`stm32f746g_disco`), connect
 - **System metrics** collected automatically: heap, CPU utilization, network bytes, thread stacks, connection state, and `boot_reset`
 - A 60-second **heartbeat**
 - **Crash core dumps**: a fatal fault is captured to internal flash, then uploaded to Spotflow on the next boot, where the built-in AI analysis explains the root cause
-- A **local LVGL display** on the LTDC LCD showing cabinet temperature, uptime, IP address, probe-error count, and Spotflow connection state
+- A **local LVGL display** on the LTDC LCD showing cabinet temperature, uptime, IP address, probe-error count, and network status (offline / waiting for DHCP / online, tracking the Ethernet carrier); during an excursion the temperature turns amber then red and a red alarm banner appears
 - A **touch "SIMULATE EXCURSION" button** (and the physical USER button) to drive the demo
 
 ## The crash scenario
@@ -28,8 +28,8 @@ The bug: on this unit the callback was never registered, because the cabinet was
 Crash path:
 
 1. Press the physical USER button, or tap **SIMULATE EXCURSION** on the LCD (a door left open or a compressor fault).
-2. The simulated cabinet temperature rises into the 9-13 °C range, past the 8 °C limit.
-3. On the next cycle, `check_temperature()` calls `g_alarm_callback(temp)`, a `NULL` function pointer, and the CPU faults (USAGE FAULT, `PC = 0x00000000`).
+2. The simulated cabinet temperature ramps up over a few seconds, past the 8 °C limit. On the LCD the temperature turns amber while warming and red once over the limit, with an alarm banner, so the excursion is visible before the crash.
+3. Once over the limit, `check_temperature()` calls `g_alarm_callback(temp)`, a `NULL` function pointer, and the CPU faults (USAGE FAULT, `PC = 0x00000000`).
 4. Zephyr writes the core dump to the `coredump-partition` in internal flash.
 5. The device reboots, reconnects, and Spotflow uploads the core dump. The crash report with AI analysis is available in the [Events](https://app.spotflow.io/) view within seconds.
 
@@ -127,7 +127,7 @@ west flash --runner openocd
 
 At the same time, the LCD shows the live cabinet temperature and the red **SIMULATE EXCURSION** button.
 
-## Upload the ELF for symbolized AI analysis
+## Upload the ELF so crash dumps decode
 
 Before triggering a crash, upload `build/zephyr/zephyr.elf` to Spotflow on the [Firmware Management](https://app.spotflow.io/) page. The build ID is embedded in both the ELF and the core dump, so Spotflow links them automatically. Without the ELF, stack frames show only raw addresses and the AI analysis has no function or variable names to work with.
 
@@ -138,11 +138,14 @@ See [Upload ELF file with symbols](https://docs.spotflow.io/guides/zephyr/crash-
 Press the physical **USER** button or tap **SIMULATE EXCURSION** on the LCD. The UART shows the full fault sequence:
 
 ```
-<wrn> fridge_monitor: Temperature excursion simulated (door left open). Cabinet warming past the safe limit.
-<wrn> fridge_monitor: Cabinet temperature above safe limit: 11.2 C (limit: 8.0 C)
-<err> os: ***** USAGE FAULT *****
-<err> os: Faulting instruction address (r15/pc): 0x00000000
-<err> os: >>> ZEPHYR FATAL ERROR 35 ... Current thread: main
+<wrn> fridge_monitor: fridge_monitor_simulate_excursion: Temperature excursion simulated (door left open). Cabinet warming past the safe limit.
+<inf> fridge_monitor: fridge_monitor_step: Cabinet temperature: 7.8 C
+<inf> fridge_monitor: fridge_monitor_step: Cabinet temperature: 9.3 C
+<wrn> fridge_monitor: check_temperature: Cabinet temperature above safe limit: 9.3 C (limit: 8.0 C)
+<err> os: usage_fault: ***** USAGE FAULT *****
+<err> os: usage_fault:   Illegal use of the EPSR
+<err> os: esf_dump: Faulting instruction address (r15/pc): 0x00000000
+<err> os: z_fatal_error: >>> ZEPHYR FATAL ERROR 35: Unknown error on CPU 0
 ```
 
 After the automatic reboot, the device reconnects and logs `Coredump successfully sent.` The crash then appears in Spotflow with AI analysis.
@@ -173,12 +176,12 @@ System metrics (no application code required): `heap_free_bytes`, `cpu_utilizati
 - **Core dumps go to internal flash.** The last 256 KiB sector of the 1 MB internal flash is reserved for the core dump, and the application is constrained to the first 768 KiB. Internal flash is used rather than the QSPI NOR because core dumps are written from the fatal-error handler, where the QSPI driver's blocking transfers are not available. The internal flash controller programs synchronously and works in that context. Zephyr's flash-partition backend requires the partition to be labelled exactly `coredump-partition`.
 - **Thread-mode dumps.** `CONFIG_DEBUG_COREDUMP_MEMORY_DUMP_THREADS` dumps thread stacks and metadata instead of Zephyr's default linker-defined RAM image. With this image using about 70% of the 256 KiB main SRAM, the default would sit close to the 256 KiB partition; thread mode leaves a wide margin.
 - **Config persistence is disabled** on this board (`CONFIG_SPOTFLOW_SAMPLE_CONFIG_PERSISTENCE_FLASH=n`). The only thing it persists is the log level set remotely from Spotflow. The store is initialized from the log backend before the kernel scheduler is running, and the STM32 QSPI flash cannot service a blocking read that early (`settings_subsys_init()` returns `-EDEADLK`). Without it, a remotely set log level is re-applied after each reconnect instead of surviving the reboot. Logs, metrics, and core dumps do not depend on it.
-- **The LCD framebuffer and LVGL buffers live in the external SDRAM.** The STM32F746 has 320 KB of SRAM in total, but Zephyr's main region (`sram0`) is the 256 KiB at 0x20010000; the 64 KiB DTCM is separate. Keeping LVGL out of it leaves room for the TLS stack and the core dump backend.
+- **The LCD framebuffer and LVGL buffers live in the external SDRAM.** The STM32F746 has 320 KB of SRAM in total, but Zephyr's main region (`sram0`) is the 256 KiB at 0x20010000; the 64 KiB DTCM is separate. Keeping LVGL out of it leaves room for the networking and TLS stack.
 
 ## Related links
 
 - [Spotflow documentation](https://docs.spotflow.io/?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_readme&utm_content=stm32_cold_chain_links)
-- [Fundamentals: Crash reports and core dumps](https://docs.spotflow.io/fundamentals/crash-reports?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_readme&utm_content=stm32_cold_chain_links)
+- [Fundamentals: Crash reports and core dumps](https://docs.spotflow.io/fundamentals/monitoring/crash-reports?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_readme&utm_content=stm32_cold_chain_links)
 - [Guide: Crash reports with Zephyr](https://docs.spotflow.io/guides/zephyr/crash-reports-zephyr?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_readme&utm_content=stm32_cold_chain_links)
-- [Fundamentals: Metrics](https://docs.spotflow.io/fundamentals/metrics?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_readme&utm_content=stm32_cold_chain_links)
+- [Fundamentals: Metrics](https://docs.spotflow.io/fundamentals/monitoring/metrics?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_readme&utm_content=stm32_cold_chain_links)
 - [Spotflow Device SDK](https://github.com/spotflow-io/device-sdk)
