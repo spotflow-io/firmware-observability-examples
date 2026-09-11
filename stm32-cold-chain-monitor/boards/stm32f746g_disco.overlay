@@ -1,0 +1,37 @@
+/*
+ * Reserve the last 256 KiB sector of the STM32F746 internal flash (sector 7, at
+ * offset 0xC0000) for Zephyr coredump storage, and constrain the application
+ * image to the first 768 KiB (sectors 0-6).
+ *
+ * Internal flash is used rather than the QSPI NOR because coredumps are written
+ * from the fatal-error handler, where the QSPI driver's IRQ-driven, blocking
+ * transfers are unavailable. The STM32 internal flash controller programs
+ * synchronously and works in that context.
+ *
+ * The split is sector-aligned: sectors 0-6 span 0x00000-0xC0000 (768 KiB) and
+ * sector 7 spans 0xC0000-0x100000 (256 KiB).
+ */
+
+/ {
+	chosen {
+		zephyr,code-partition = &slot0_partition;
+	};
+};
+
+&flash0 {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		slot0_partition: partition@0 {
+			label = "image-0";
+			reg = <0x00000000 DT_SIZE_K(768)>;
+		};
+
+		coredump_partition: partition@c0000 {
+			label = "coredump-partition";
+			reg = <0x000c0000 DT_SIZE_K(256)>;
+		};
+	};
+};

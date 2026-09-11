@@ -1,0 +1,22 @@
+manifest:
+  projects:
+    # Zephyr RTOS - STMicroelectronics STM32F746G-DISCO
+    - name: zephyr
+      url: https://github.com/zephyrproject-rtos/zephyr
+      revision: v4.4.0
+      clone-depth: 1
+      import:
+        path-prefix: external
+        name-allowlist:
+          - cmsis
+          - cmsis_6
+          - hal_stm32
+          - mbedtls
+          - tf-psa-crypto
+          - zcbor
+          - lvgl
+
+    - name: spotflow-device-sdk
+      url: https://github.com/spotflow-io/device-sdk
+      revision: main
+      path: external/modules/lib/spotflow
