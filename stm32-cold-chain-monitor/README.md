@@ -3,7 +3,7 @@
 > Companion code for the openstm32.org article:
 > **Remote crash debugging for an STM32 fleet with Zephyr RTOS** *(link added on publication)*
 
-A supermarket or pharmacy chain runs a temperature monitor on every refrigerated case, walk-in cooler, and vaccine fridge, hundreds or thousands of them across sites. Each has a local screen the on-site staff can read, but the operations team back at headquarters cannot see any of them. When one drifts out of range or the monitor itself crashes, nobody finds out until the stock is spoiled or a compliance log has a hole in it. And you cannot send a technician to every fridge.
+A supermarket or pharmacy chain runs a temperature monitor on every refrigerated case, walk-in cooler, and vaccine fridge, hundreds or thousands of them across sites. Each has a local screen and alarm for the on-site staff, so a temperature excursion is caught on site. What headquarters cannot see is the fleet: when a monitor silently stops reporting or crashes, nobody finds out until the stock is spoiled or a compliance log has a hole in it. And you cannot send a technician to every fridge.
 
 This example closes that gap on an [STM32F746G-DISCO](https://www.st.com/en/evaluation-tools/32f746gdiscovery.html). The board runs a small [Zephyr RTOS](https://www.zephyrproject.org/) application that behaves like a cold-chain monitor: it shows the current cabinet temperature on its 4.3" touch LCD, and at the same time streams logs, metrics, and crash core dumps to [Spotflow](https://docs.spotflow.io/?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_readme&utm_content=stm32_cold_chain_intro) over Ethernet, so the whole fleet is visible from one web interface.
 
@@ -72,10 +72,10 @@ west update
 west packages pip --install
 ```
 
-The manifest pins:
+The manifest uses:
 
-- Zephyr `v4.4.0`
-- Spotflow Device SDK `main`
+- Zephyr `v4.4.0` (pinned)
+- Spotflow Device SDK `main` branch
 
 ### Step 3: Install the Zephyr SDK toolchain
 
@@ -176,7 +176,7 @@ System metrics (no application code required): `heap_free_bytes`, `cpu_utilizati
 - **Core dumps go to internal flash.** The last 256 KiB sector of the 1 MB internal flash is reserved for the core dump, and the application is constrained to the first 768 KiB. Internal flash is used rather than the QSPI NOR because core dumps are written from the fatal-error handler, where the QSPI driver's blocking transfers are not available. The internal flash controller programs synchronously and works in that context. Zephyr's flash-partition backend requires the partition to be labelled exactly `coredump-partition`.
 - **Thread-mode dumps.** `CONFIG_DEBUG_COREDUMP_MEMORY_DUMP_THREADS` dumps thread stacks and metadata instead of Zephyr's default linker-defined RAM image. With this image using about 70% of the 256 KiB main SRAM, the default would sit close to the 256 KiB partition; thread mode leaves a wide margin.
 - **Config persistence is disabled** on this board (`CONFIG_SPOTFLOW_SAMPLE_CONFIG_PERSISTENCE_FLASH=n`). The only thing it persists is the log level set remotely from Spotflow. The store is initialized from the log backend before the kernel scheduler is running, and the STM32 QSPI flash cannot service a blocking read that early (`settings_subsys_init()` returns `-EDEADLK`). Without it, a remotely set log level is re-applied after each reconnect instead of surviving the reboot. Logs, metrics, and core dumps do not depend on it.
-- **The LCD framebuffer and LVGL buffers live in the external SDRAM.** The STM32F746 has 320 KB of SRAM in total, but Zephyr's main region (`sram0`) is the 256 KiB at 0x20010000; the 64 KiB DTCM is separate. Keeping LVGL out of it leaves room for the networking and TLS stack.
+- **The LCD framebuffer and LVGL buffers live in the external SDRAM.** Zephyr's main SRAM region (`sram0`) is the 256 KiB at 0x20010000, with a separate 64 KiB DTCM (320 KB together; ST's datasheet counts 340 KB by also including the instruction-TCM and backup SRAM). Keeping LVGL out of the main region leaves room for the networking and TLS stack.
 
 ## Related links
 
