@@ -105,7 +105,7 @@ west packages pip --install
 The manifest is pinned to:
 
 - Zephyr `v4.4.0`
-- Spotflow Device SDK `feature/dynamic-ingest-key` (temporary, until `spotflow_override_ingest_key()` is merged to `main`)
+- Spotflow Device SDK `feature/dynamic-ingest-key` (temporary, until `CONFIG_SPOTFLOW_INGEST_KEY_DYNAMIC` is merged to `main`)
 
 ### Step 3: Install the Zephyr SDK toolchain
 
@@ -137,7 +137,7 @@ west build -t run
 
 Upload `build/zephyr/zephyr.elf` to Spotflow as described above.
 
-To pass the credentials at run time instead, use the launcher script:
+To pass the ingest key at run time instead, build without `credentials.conf`. The build then picks up `runtime-credentials.conf`, which enables `CONFIG_SPOTFLOW_INGEST_KEY_DYNAMIC`, and the launcher script supplies the key:
 
 ```sh
 VIRTUAL_DEVICE_ELF=build/zephyr/zephyr.elf SPOTFLOW_INGEST_KEY="<your-ingest-key>" ./run-virtual-device.sh
@@ -154,7 +154,7 @@ Spotflow virtual device
 
 *** Booting Zephyr OS build 684c9e8f32e4 ***
 [00:00:02.360,000] <inf> main: main: Zephyr virtual device example starting
-[00:00:02.360,000] <inf> virtual_device: virtual_device_init: Run-time credentials loaded (device ID: virtual-device-vm, ingest key: provided)
+[00:00:02.360,000] <inf> virtual_device: read_credentials_block: Run-time credentials loaded (device ID: virtual-device-vm, ingest key: provided)
 [00:00:03.370,000] <inf> spotflow_sample_eth: turn_on_dhcp_when_device_is_up: Interface is already up -> starting DHCPv4
 [00:00:03.370,000] <inf> main: main: The demo crash will fire automatically in 20 seconds
 [00:00:03.370,000] <inf> sensor_node: sensor_node_step: Sensor reading: 29.5 C
@@ -179,7 +179,7 @@ The crash report appears in the [Events](https://app.spotflow.io/) page after th
 
 - **Network.** QEMU user-mode networking (`CONFIG_NET_QEMU_USER=y`) gives the emulated LAN9118 Ethernet controller outbound TCP through the host. The device gets its address over DHCP and opens a normal MQTT/TLS connection to `mqtt.spotflow.io:8883`. No root access or TAP interface is needed.
 - **Flash.** QEMU's `mps2-an385` machine has 16 MiB of PSRAM at `0x21000000` that Zephyr's board definition does not use. `boards/mps2_an385.overlay` moves the board's simulated flash there and adds the settings and core dump partitions. RAM content survives a reset in QEMU, so the core dump written before the reboot is still there afterwards. It does not survive a QEMU restart.
-- **Credentials.** A prebuilt firmware image cannot contain your ingest key. The launcher script writes the device ID and the key to a small text block, and QEMU's generic loader places it at `0x21f00000` before the CPU starts. `src/virtual_device.c` parses the block and hands the values to the SDK through `spotflow_override_device_id()` and `spotflow_override_ingest_key()`. The script deletes the file when QEMU exits.
+- **Credentials.** A prebuilt firmware image cannot contain your ingest key. The launcher script writes the device ID and the key to a small text block, and QEMU's generic loader places it at `0x21f00000` before the CPU starts. `src/virtual_device.c` parses the block and hands the device ID to the SDK through `spotflow_override_device_id()` and the ingest key through `spotflow_on_ingest_key_requested()`, which the SDK calls when `CONFIG_SPOTFLOW_INGEST_KEY_DYNAMIC=y`. The script deletes the file when QEMU exits.
 - **Time.** `CONFIG_QEMU_ICOUNT=n` makes the emulated clock follow wall-clock time. With instruction counting enabled, QEMU fast-forwards idle time and network timeouts fire early.
 
 ## Limitations
@@ -187,7 +187,7 @@ The crash report appears in the [Events](https://app.spotflow.io/) page after th
 - **Not a security reference.** The emulated board has no entropy source, so the example enables `CONFIG_TEST_RANDOM_GENERATOR`, which is not cryptographically secure. The TLS server certificate is still verified. Never copy this setting into a product.
 - **Reset cause is unknown.** The board has no hardware info driver, so the `boot_reset` metric reports `UNKNOWN`.
 - **No OTA updates.** The example does not include MCUboot.
-- **Run-time ingest key needs SDK support.** The `spotflow_override_ingest_key()` hook must be present in the device SDK revision you build against. Without it the build prints a warning, and the firmware uses `CONFIG_SPOTFLOW_INGEST_KEY` from `credentials.conf` only.
+- **The ingest key comes from one place.** The SDK takes it either from Kconfig or from the application, never both. Firmware built with `credentials.conf` ignores a key passed at run time and logs a warning. Firmware built without it does not connect until the launcher provides a key.
 
 ## Project structure
 
@@ -202,6 +202,7 @@ The crash report appears in the [Events](https://app.spotflow.io/) page after th
 - `compose.yaml`: a fleet of virtual devices
 - `west.yml`: pinned dependency manifest (Zephyr v4.4.0, Spotflow Device SDK)
 - `credentials-sample.conf`: template for build-time Spotflow credentials
+- `runtime-credentials.conf`: enables the run-time ingest key when `credentials.conf` does not exist
 
 ## Related links
 

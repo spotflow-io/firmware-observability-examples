@@ -3,10 +3,15 @@
  *
  *  - Run-time credentials. A prebuilt firmware image cannot contain your
  *    ingest key, so QEMU places a small text block in memory before the CPU
- *    starts (-device loader,file=credentials.bin,addr=0x21f00000) and the
- *    firmware hands its values to the Spotflow SDK through the
- *    spotflow_override_*() hooks. When the block is absent, the SDK falls back
- *    to CONFIG_SPOTFLOW_DEVICE_ID and CONFIG_SPOTFLOW_INGEST_KEY as usual.
+ *    starts (-device loader,file=credentials.bin,addr=0x21f00000). The
+ *    firmware hands the device ID to the Spotflow SDK through
+ *    spotflow_override_device_id() and the ingest key through
+ *    spotflow_on_ingest_key_requested().
+ *
+ *    The SDK takes the ingest key either from Kconfig or from the application,
+ *    never both. A build without credentials.conf enables
+ *    CONFIG_SPOTFLOW_INGEST_KEY_DYNAMIC (see runtime-credentials.conf) and
+ *    needs the block. A build with credentials.conf uses the key from Kconfig.
  *
  *  - A console key instead of a user button.
  *
@@ -25,7 +30,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 
-#ifdef VIRTUAL_DEVICE_SDK_HAS_INGEST_KEY_HOOK
+#ifdef CONFIG_SPOTFLOW_INGEST_KEY_DYNAMIC
 #include <spotflow/ingest_key.h>
 #endif
 
@@ -81,19 +86,12 @@ static void read_value(const char *block, size_t block_len, const char *key, cha
 	}
 }
 
-void virtual_device_init(void)
+static void read_credentials_block(void)
 {
-	if (g_boot_marker != BOOT_MARKER) {
-		g_boot_marker = BOOT_MARKER;
-		g_boot_count = 0;
-	}
-	g_first_boot = (g_boot_count == 0);
-	g_boot_count++;
-
 	const char *block = CREDENTIALS_ADDR;
 
 	if (memcmp(block, CREDENTIALS_MAGIC, strlen(CREDENTIALS_MAGIC)) != 0) {
-		LOG_INF("No run-time credentials block, using the values from Kconfig");
+		LOG_INF("No run-time credentials block");
 		return;
 	}
 
@@ -110,13 +108,29 @@ void virtual_device_init(void)
 
 	LOG_INF("Run-time credentials loaded (device ID: %s, ingest key: %s)",
 		g_device_id[0] != '\0' ? g_device_id : "<from Kconfig>",
-		g_ingest_key[0] != '\0' ? "provided" : "<from Kconfig>");
+		g_ingest_key[0] != '\0' ? "provided" : "not provided");
+}
 
-#ifndef VIRTUAL_DEVICE_SDK_HAS_INGEST_KEY_HOOK
+void virtual_device_init(void)
+{
+	if (g_boot_marker != BOOT_MARKER) {
+		g_boot_marker = BOOT_MARKER;
+		g_boot_count = 0;
+	}
+	g_first_boot = (g_boot_count == 0);
+	g_boot_count++;
+
+	read_credentials_block();
+
+#ifdef CONFIG_SPOTFLOW_INGEST_KEY_DYNAMIC
+	if (g_ingest_key[0] == '\0') {
+		LOG_ERR("No ingest key. Start the device with run-virtual-device.sh, or set "
+			"CONFIG_SPOTFLOW_INGEST_KEY in credentials.conf and rebuild.");
+	}
+#else
 	if (g_ingest_key[0] != '\0') {
-		LOG_ERR("This firmware was built with a Spotflow SDK that cannot take the ingest "
-			"key at run time. Set CONFIG_SPOTFLOW_INGEST_KEY in credentials.conf and "
-			"rebuild.");
+		LOG_WRN("This firmware was built with the ingest key from credentials.conf. "
+			"The key passed at run time is ignored.");
 	}
 #endif
 }
@@ -149,14 +163,18 @@ bool virtual_device_crash_requested(void)
 	return requested;
 }
 
-/* Spotflow SDK hooks. Returning NULL keeps the value from Kconfig. */
+/* Spotflow SDK callbacks */
 
+/* Returning NULL keeps CONFIG_SPOTFLOW_DEVICE_ID. */
 const char *spotflow_override_device_id(void)
 {
 	return g_device_id[0] != '\0' ? g_device_id : NULL;
 }
 
-const char *spotflow_override_ingest_key(void)
+#ifdef CONFIG_SPOTFLOW_INGEST_KEY_DYNAMIC
+/* Returning NULL makes the SDK skip this connection attempt and ask again later. */
+const char *spotflow_on_ingest_key_requested(void)
 {
 	return g_ingest_key[0] != '\0' ? g_ingest_key : NULL;
 }
+#endif
