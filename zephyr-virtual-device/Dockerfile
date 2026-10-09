@@ -40,9 +40,8 @@ COPY . .
 RUN west update --fetch-opt=--depth=1 --narrow \
     && pip install --no-cache-dir -r external/zephyr/scripts/requirements-base.txt
 
-# No credentials.conf here: the image takes the ingest key at run time. The SDK
-# refuses to build with an empty key, so a placeholder stands in for it.
-RUN west build --pristine --board mps2/an385 -- -DCONFIG_SPOTFLOW_INGEST_KEY=\"provided-at-run-time\"
+# No credentials.conf here: the image takes the ingest key at run time
+RUN west build --pristine --board mps2/an385
 
 # ---------------------------------------------------------------------------
 FROM ubuntu:24.04

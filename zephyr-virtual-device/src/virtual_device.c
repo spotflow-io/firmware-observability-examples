@@ -25,6 +25,10 @@
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 
+#ifdef VIRTUAL_DEVICE_SDK_HAS_INGEST_KEY_HOOK
+#include <spotflow/ingest_key.h>
+#endif
+
 LOG_MODULE_REGISTER(virtual_device, LOG_LEVEL_INF);
 
 #define CREDENTIALS_NODE DT_NODELABEL(vdev_credentials)

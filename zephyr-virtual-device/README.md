@@ -105,7 +105,7 @@ west packages pip --install
 The manifest is pinned to:
 
 - Zephyr `v4.4.0`
-- Spotflow Device SDK `feature/ingest-key-override` (temporary, until `spotflow_override_ingest_key()` is merged to `main`)
+- Spotflow Device SDK `feature/dynamic-ingest-key` (temporary, until `spotflow_override_ingest_key()` is merged to `main`)
 
 ### Step 3: Install the Zephyr SDK toolchain
 
@@ -179,7 +179,7 @@ The crash report appears in the [Events](https://app.spotflow.io/) page after th
 
 - **Network.** QEMU user-mode networking (`CONFIG_NET_QEMU_USER=y`) gives the emulated LAN9118 Ethernet controller outbound TCP through the host. The device gets its address over DHCP and opens a normal MQTT/TLS connection to `mqtt.spotflow.io:8883`. No root access or TAP interface is needed.
 - **Flash.** QEMU's `mps2-an385` machine has 16 MiB of PSRAM at `0x21000000` that Zephyr's board definition does not use. `boards/mps2_an385.overlay` moves the board's simulated flash there and adds the settings and core dump partitions. RAM content survives a reset in QEMU, so the core dump written before the reboot is still there afterwards. It does not survive a QEMU restart.
-- **Credentials.** A prebuilt firmware image cannot contain your ingest key. The launcher script writes the device ID and the key to a small text block, and QEMU's generic loader places it at `0x21f00000` before the CPU starts. `src/virtual_device.c` parses the block and hands the values to the SDK through `spotflow_override_device_id()` and `spotflow_override_ingest_key()`. The script deletes the file two seconds after QEMU starts.
+- **Credentials.** A prebuilt firmware image cannot contain your ingest key. The launcher script writes the device ID and the key to a small text block, and QEMU's generic loader places it at `0x21f00000` before the CPU starts. `src/virtual_device.c` parses the block and hands the values to the SDK through `spotflow_override_device_id()` and `spotflow_override_ingest_key()`. The script deletes the file when QEMU exits.
 - **Time.** `CONFIG_QEMU_ICOUNT=n` makes the emulated clock follow wall-clock time. With instruction counting enabled, QEMU fast-forwards idle time and network timeouts fire early.
 
 ## Limitations

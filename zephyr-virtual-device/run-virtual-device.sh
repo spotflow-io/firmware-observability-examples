@@ -47,11 +47,11 @@ fi
 # starts, and the firmware reads it at boot (see src/virtual_device.c).
 umask 077
 CREDENTIALS="$(mktemp "${TMPDIR:-/tmp}/spotflow-virtual-device.XXXXXX")"
+trap 'rm -f "$CREDENTIALS"' EXIT
 printf 'SFVDEV1\ndevice_id=%s\ningest_key=%s\ncrash_after=%s\n' \
 	"$DEVICE_ID" "$SPOTFLOW_INGEST_KEY" "$CRASH_AFTER" >"$CREDENTIALS"
 
 if [ "$(wc -l <"$CREDENTIALS")" -ne 4 ]; then
-	rm -f "$CREDENTIALS"
 	echo "The device ID and the ingest key must not contain line breaks." >&2
 	exit 1
 fi
@@ -67,9 +67,9 @@ echo "  Open https://app.spotflow.io to watch logs, metrics and the crash report
 echo "  Stop with Ctrl+C."
 echo
 
-# QEMU runs as a child so that the credentials file can be removed as soon as
-# QEMU has read it. A background command gets /dev/null as its input, so the
-# console input is passed on through descriptor 3 to keep the 'c' key working.
+# QEMU runs as a child so that the credentials file is removed when it exits.
+# A background command gets /dev/null as its input, so the console input is
+# passed on through descriptor 3 to keep the 'c' key working.
 exec 3<&0
 "$QEMU" \
 	-machine mps2-an385 -cpu cortex-m3 \
@@ -80,9 +80,6 @@ exec 3<&0
 QEMU_PID=$!
 exec 3<&-
 trap 'kill "$QEMU_PID" 2>/dev/null' TERM INT HUP
-
-sleep 2
-rm -f "$CREDENTIALS"
 
 STATUS=0
 wait "$QEMU_PID" || STATUS=$?
