@@ -1,0 +1,23 @@
+manifest:
+  projects:
+    # Zephyr RTOS - ARM MPS2+ AN385 (Cortex-M3), emulated by QEMU
+    - name: zephyr
+      url: https://github.com/zephyrproject-rtos/zephyr
+      revision: v4.4.0
+      clone-depth: 1
+      import:
+        path-prefix: external
+        name-allowlist:
+          - cmsis_6
+          - mbedtls
+          - zcbor
+          - mldsa-native
+          - tf-psa-crypto
+
+    # TEMPORARY: this branch adds spotflow_override_ingest_key(), which the
+    # prebuilt Docker image needs. Switch back to "main" once that change is
+    # merged into the device SDK.
+    - name: spotflow-device-sdk
+      url: https://github.com/spotflow-io/device-sdk
+      revision: feature/ingest-key-override
+      path: external/modules/lib/spotflow
