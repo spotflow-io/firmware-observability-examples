@@ -105,7 +105,7 @@ west packages pip --install
 The manifest is pinned to:
 
 - Zephyr `v4.4.0`
-- Spotflow Device SDK `feature/dynamic-ingest-key` (temporary, until `CONFIG_SPOTFLOW_INGEST_KEY_DYNAMIC` is merged to `main`)
+- Spotflow Device SDK `main` (`CONFIG_SPOTFLOW_INGEST_KEY_DYNAMIC` is required, available since commit `0349981`)
 
 ### Step 3: Install the Zephyr SDK toolchain
 

@@ -14,10 +14,9 @@ manifest:
           - mldsa-native
           - tf-psa-crypto
 
-    # TEMPORARY: this branch adds CONFIG_SPOTFLOW_INGEST_KEY_DYNAMIC, which the
-    # prebuilt Docker image needs. Switch back to "main" once the branch is
-    # merged into the device SDK.
+    # Spotflow Device SDK. CONFIG_SPOTFLOW_INGEST_KEY_DYNAMIC, which the
+    # prebuilt Docker image needs, is on main since commit 0349981.
     - name: spotflow-device-sdk
       url: https://github.com/spotflow-io/device-sdk
-      revision: feature/dynamic-ingest-key
+      revision: main
       path: external/modules/lib/spotflow
