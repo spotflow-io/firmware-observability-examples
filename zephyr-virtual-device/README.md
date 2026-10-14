@@ -27,7 +27,7 @@ Crash path:
 
 The automatic crash fires once per QEMU run. After the reset the device keeps running, so you can also watch normal telemetry.
 
-## Option 1: Run the prebuilt image
+## Option 1: Run in Docker
 
 ### Prerequisites
 
@@ -46,7 +46,7 @@ The first command builds the firmware inside the image, which takes a few minute
 | Variable | Default | Meaning |
 | --- | --- | --- |
 | `SPOTFLOW_INGEST_KEY` | required | Ingest key of your workspace |
-| `SPOTFLOW_DEVICE_ID` | `virtual-device-<hostname>` | Device ID shown in Spotflow |
+| `SPOTFLOW_DEVICE_ID` | `virtual-device-<hostname>` | Device ID shown in Spotflow. Every new container has a new hostname, so set this to keep the same device across runs. |
 | `SPOTFLOW_CRASH_AFTER` | `60` | Seconds until the demo crash. `0` disables the timer. |
 
 Press `c` to trigger the crash at any time. Stop the device with `Ctrl+C`.
@@ -133,7 +133,7 @@ west build --pristine --board mps2/an385
 west build -t run
 ```
 
-`west build -t run` starts QEMU with the credentials from `credentials.conf`. Press `c` to trigger the crash. Exit QEMU with `Ctrl+A`, then `X`.
+`west build -t run` starts QEMU with the credentials from `credentials.conf`. The automatic crash is off in this mode, so press `c` to trigger it. Exit QEMU with `Ctrl+A`, then `X`.
 
 Upload `build/zephyr/zephyr.elf` to Spotflow as described above.
 
@@ -144,6 +144,8 @@ VIRTUAL_DEVICE_ELF=build/zephyr/zephyr.elf SPOTFLOW_INGEST_KEY="<your-ingest-key
 ```
 
 ## What to expect on the console
+
+Output of a run with `SPOTFLOW_CRASH_AFTER=20`, shortened:
 
 ```
 Spotflow virtual device
@@ -194,7 +196,7 @@ The crash report appears in the [Events](https://app.spotflow.io/) page after th
 - `src/main.c`: entry point: network init, crash triggers, main sensor loop
 - `src/sensor_node.c`: metric registration, sensor simulation, and the crash path
 - `src/virtual_device.c`: run-time credentials, console key, boot counter
-- `src/net/`: Wi-Fi / Ethernet connectivity, shared from the observability examples collection
+- `src/net/`: Wi-Fi / Ethernet connectivity, copied from the other examples. `eth.c` also starts DHCP when the interface is already up, as it always is in QEMU.
 - `boards/mps2_an385.conf`: QEMU networking and clock settings
 - `boards/mps2_an385.overlay`: simulated flash in PSRAM, core dump partition, credentials block
 - `run-virtual-device.sh`: launcher that passes credentials to QEMU
