@@ -1,0 +1,121 @@
+name: Zephyr virtual device image
+
+# Builds the zephyr-virtual-device Docker image, checks that the firmware boots
+# in QEMU, and publishes it to ghcr.io/spotflow-io/virtual-device.
+#
+# Pull requests build and test the image without publishing it. A push to
+# main publishes the tags "latest" and "sha-<commit>". Run the workflow
+# manually on main to rebuild the image when the Spotflow Device SDK changes:
+# the image always contains the SDK revision pinned in
+# zephyr-virtual-device/west.yml at build time.
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - zephyr-virtual-device/**
+      - "!zephyr-virtual-device/**.md"
+      - .github/workflows/zephyr-virtual-device-image.yml
+  pull_request:
+    paths:
+      - zephyr-virtual-device/**
+      - "!zephyr-virtual-device/**.md"
+      - .github/workflows/zephyr-virtual-device-image.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+env:
+  IMAGE: ghcr.io/spotflow-io/virtual-device
+  TEST_TAG: virtual-device:test
+
+jobs:
+  image:
+    name: Build, test and publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Build image
+        env:
+          SOURCE_URL: ${{ github.server_url }}/${{ github.repository }}
+        run: |
+          docker build --pull \
+            --label "org.opencontainers.image.title=Spotflow virtual device" \
+            --label "org.opencontainers.image.description=Zephyr RTOS firmware with the Spotflow device SDK, running on an emulated Cortex-M3 in QEMU. No hardware needed." \
+            --label "org.opencontainers.image.source=${SOURCE_URL}" \
+            --label "org.opencontainers.image.url=${SOURCE_URL}/tree/main/zephyr-virtual-device" \
+            --label "org.opencontainers.image.revision=${GITHUB_SHA}" \
+            --tag "${TEST_TAG}" \
+            zephyr-virtual-device
+
+      - name: Test that the image contains the firmware ELF
+        run: |
+          docker run --rm "${TEST_TAG}" elf > zephyr.elf
+          file zephyr.elf | tee /dev/stderr | grep -q "ELF 32-bit LSB executable, ARM"
+
+      - name: Test that the firmware boots, crashes and restarts in QEMU
+        # --network none keeps the test away from the Spotflow broker. The
+        # device cannot connect, but everything up to the core dump upload
+        # still runs: run-time credentials, the demo crash, and the reset.
+        run: |
+          docker run --detach --name smoke-test --network none \
+            --env SPOTFLOW_INGEST_KEY=smoke-test-key \
+            --env SPOTFLOW_DEVICE_ID=ci-smoke-test \
+            --env SPOTFLOW_CRASH_AFTER=5 \
+            "${TEST_TAG}" > /dev/null
+
+          # The restart follows the crash after about 15 seconds
+          for _ in $(seq 90); do
+            docker logs smoke-test > boot.log 2>&1
+            grep -qF "Device restarted after a reset" boot.log && break
+            sleep 1
+          done
+          docker rm --force smoke-test > /dev/null
+          cat boot.log
+
+          for marker in \
+            "Run-time credentials loaded (device ID: ci-smoke-test, ingest key: provided)" \
+            "***** USAGE FAULT *****" \
+            "Device restarted after a reset"
+          do
+            if ! grep -qF "${marker}" boot.log; then
+              echo "::error::The device log does not contain: ${marker}"
+              exit 1
+            fi
+          done
+
+      - name: Log in to GitHub Container Registry
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_ACTOR: ${{ github.actor }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "${GH_TOKEN}" | docker login ghcr.io --username "${GH_ACTOR}" --password-stdin
+
+      - name: Publish image
+        if: github.ref == 'refs/heads/main'
+        run: |
+          for tag in latest "sha-${GITHUB_SHA::7}"; do
+            docker tag "${TEST_TAG}" "${IMAGE}:${tag}"
+            docker push "${IMAGE}:${tag}"
+          done
+
+          {
+            echo "Published \`${IMAGE}:latest\` and \`${IMAGE}:sha-${GITHUB_SHA::7}\`."
+            echo
+            echo '```sh'
+            echo "docker run --rm -it -e SPOTFLOW_INGEST_KEY=\"<your-ingest-key>\" ${IMAGE}"
+            echo '```'
+          } >> "${GITHUB_STEP_SUMMARY}"
