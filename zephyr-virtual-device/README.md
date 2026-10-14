@@ -1,6 +1,6 @@
 # Spotflow Virtual Device: Zephyr RTOS on QEMU, No Hardware Needed
 
-This example runs real Zephyr RTOS firmware with the [Spotflow](https://docs.spotflow.io/) device SDK on an emulated ARM Cortex-M3 board. You need no development board, no debug probe, and, if you use the Docker image, no toolchain. Logs and metrics reach your Spotflow workspace seconds after the device starts, and a crash report with AI analysis follows about a minute later.
+This example runs real Zephyr RTOS firmware with the [Spotflow](https://docs.spotflow.io/?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_zephyr_virtual_device_readme&utm_content=link_docs_intro) device SDK on an emulated ARM Cortex-M3 board. You need no development board, no debug probe, and, if you use the Docker image, no toolchain. Logs and metrics reach your Spotflow workspace seconds after the device starts, and a crash report with AI analysis follows about a minute later.
 
 Runs on: **QEMU, machine `mps2-an385`** (ARM MPS2+ AN385). The firmware is the same code you would flash to a physical board. Only the network interface, the flash, and the way credentials arrive are emulated.
 
@@ -31,7 +31,7 @@ The automatic crash fires once per QEMU run. After the reset the device keeps ru
 
 ### Prerequisites
 
-- A Spotflow account and [ingest key](https://docs.spotflow.io/fundamentals/device-authorization): [sign up for free](https://app.spotflow.io/signup)
+- A Spotflow account and [ingest key](https://docs.spotflow.io/fundamentals/device-authorization?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_zephyr_virtual_device_readme&utm_content=link_fundamentals_device_authorization_docker): [sign up for free](https://app.spotflow.io/signup?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_zephyr_virtual_device_readme&utm_content=cta_signup_docker)
 - Docker
 
 ### Build and run
@@ -59,7 +59,7 @@ Copy the symbol file out of the image and upload it to Spotflow before you look 
 docker run --rm spotflow-virtual-device elf > zephyr.elf
 ```
 
-See [Upload ELF file with symbols](https://docs.spotflow.io/guides/zephyr/crash-reports-zephyr#recommended-upload-elf-file-with-symbols) for the upload steps. Spotflow links the ELF to the core dump using the build ID embedded in both.
+See [Upload ELF file with symbols](https://docs.spotflow.io/guides/zephyr/crash-reports-zephyr?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_zephyr_virtual_device_readme&utm_content=link_guide_crash_reports_zephyr_elf#recommended-upload-elf-file-with-symbols) for the upload steps. Spotflow links the ELF to the core dump using the build ID embedded in both.
 
 ### Run a fleet
 
@@ -75,7 +75,7 @@ Use this path when you want to change the firmware. It follows the same steps as
 
 ### Prerequisites
 
-- A Spotflow account and [ingest key](https://docs.spotflow.io/fundamentals/device-authorization): [sign up for free](https://app.spotflow.io/signup)
+- A Spotflow account and [ingest key](https://docs.spotflow.io/fundamentals/device-authorization?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_zephyr_virtual_device_readme&utm_content=link_fundamentals_device_authorization_build): [sign up for free](https://app.spotflow.io/signup?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_zephyr_virtual_device_readme&utm_content=cta_signup_build)
 - Git
 - Python 3.12+
 - QEMU with `qemu-system-arm` (the example was run on versions 8.2 and 10.0)
@@ -175,7 +175,7 @@ Spotflow virtual device
 [00:00:12.390,000] <inf> spotflow_coredump: spotflow_poll_and_process_enqueued_coredump_chunks: Coredump successfully sent.
 ```
 
-The crash report appears in the [Events](https://app.spotflow.io/) page after the last line.
+The crash report appears in the [Events](https://app.spotflow.io/events?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_zephyr_virtual_device_readme&utm_content=link_events) page after the last line.
 
 ## How the emulation works
 
@@ -208,9 +208,9 @@ The crash report appears in the [Events](https://app.spotflow.io/) page after th
 
 ## Related links
 
-- [Quickstart: Zephyr Integration](https://docs.spotflow.io/quickstart/zephyr)
-- [Guide: Crash reports with Zephyr](https://docs.spotflow.io/guides/zephyr/crash-reports-zephyr)
-- [Fundamentals: Crash reports & core dumps](https://docs.spotflow.io/fundamentals/monitoring/crash-reports)
-- [Fundamentals: Metrics](https://docs.spotflow.io/fundamentals/monitoring/metrics)
+- [Quickstart: Zephyr Integration](https://docs.spotflow.io/quickstart/zephyr?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_zephyr_virtual_device_readme&utm_content=link_quickstart_zephyr)
+- [Guide: Crash reports with Zephyr](https://docs.spotflow.io/guides/zephyr/crash-reports-zephyr?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_zephyr_virtual_device_readme&utm_content=link_guide_crash_reports_zephyr)
+- [Fundamentals: Crash reports & core dumps](https://docs.spotflow.io/fundamentals/monitoring/crash-reports?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_zephyr_virtual_device_readme&utm_content=link_fundamentals_crash_reports)
+- [Fundamentals: Metrics](https://docs.spotflow.io/fundamentals/monitoring/metrics?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_zephyr_virtual_device_readme&utm_content=link_fundamentals_metrics)
 - [Example: zephyr-crash-debugging](../zephyr-crash-debugging), the same scenario on an NXP FRDM-RW612
 - [Spotflow Device SDK](https://github.com/spotflow-io/device-sdk)
