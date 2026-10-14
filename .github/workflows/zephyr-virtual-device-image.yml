@@ -1,9 +1,14 @@
 name: Zephyr virtual device image
 
-# Builds the zephyr-virtual-device Docker image, checks that the firmware boots
-# in QEMU, and publishes it to ghcr.io/spotflow-io/virtual-device.
+# Builds the zephyr-virtual-device Docker image for linux/amd64 and
+# linux/arm64 (Apple Silicon), checks that the firmware boots in QEMU, and
+# publishes it to ghcr.io/spotflow-io/virtual-device.
 #
-# Pull requests build and test the image without publishing it. A push to
+# The firmware is compiled once, natively on the runner, and the same ELF goes
+# into both images. Only the small run-time stage (Ubuntu and QEMU) is built
+# for arm64, under emulation.
+#
+# Pull requests build and test the images without publishing them. A push to
 # main publishes the tags "latest" and "sha-<commit>". Run the workflow
 # manually on main to rebuild the image when the Spotflow Device SDK changes:
 # the image always contains the SDK revision pinned in
@@ -33,13 +38,13 @@ concurrency:
 
 env:
   IMAGE: ghcr.io/spotflow-io/virtual-device
-  TEST_TAG: virtual-device:test
+  PLATFORMS: linux/amd64,linux/arm64
 
 jobs:
   image:
     name: Build, test and publish
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     permissions:
       contents: read
       packages: write
@@ -48,25 +53,34 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Build image
-        env:
-          SOURCE_URL: ${{ github.server_url }}/${{ github.repository }}
-        run: |
-          docker build --pull \
-            --label "org.opencontainers.image.title=Spotflow virtual device" \
-            --label "org.opencontainers.image.description=Zephyr RTOS firmware with the Spotflow device SDK, running on an emulated Cortex-M3 in QEMU. No hardware needed." \
-            --label "org.opencontainers.image.source=${SOURCE_URL}" \
-            --label "org.opencontainers.image.url=${SOURCE_URL}/tree/main/zephyr-virtual-device" \
-            --label "org.opencontainers.image.revision=${GITHUB_SHA}" \
-            --tag "${TEST_TAG}" \
-            zephyr-virtual-device
+      - name: Set up QEMU for the arm64 image
+        uses: docker/setup-qemu-action@v4
+        with:
+          platforms: arm64
 
-      - name: Test that the image contains the firmware ELF
-        run: |
-          docker run --rm "${TEST_TAG}" elf > zephyr.elf
-          file zephyr.elf | tee /dev/stderr | grep -q "ELF 32-bit LSB executable, ARM"
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
 
-      - name: Test that the firmware boots, crashes and restarts in QEMU
+      - name: Build images
+        # The publish step at the end reuses these layers from the build cache
+        run: |
+          for arch in amd64 arm64; do
+            docker buildx build --platform "linux/${arch}" --load \
+              --tag "virtual-device:test-${arch}" \
+              zephyr-virtual-device
+          done
+
+      - name: Test that both images contain the same firmware ELF
+        run: |
+          for arch in amd64 arm64; do
+            docker run --rm --platform "linux/${arch}" "virtual-device:test-${arch}" elf > "zephyr-${arch}.elf"
+            file "zephyr-${arch}.elf" | tee /dev/stderr | grep -q "ELF 32-bit LSB executable, ARM"
+          done
+          # Identical ELFs mean identical build IDs, so a core dump from either
+          # image matches the symbol file extracted from either image.
+          cmp zephyr-amd64.elf zephyr-arm64.elf
+
+      - name: Test that the firmware boots, crashes and restarts (amd64)
         # --network none keeps the test away from the Spotflow broker. The
         # device cannot connect, but everything up to the core dump upload
         # still runs: run-time credentials, the demo crash, and the reset.
@@ -75,7 +89,7 @@ jobs:
             --env SPOTFLOW_INGEST_KEY=smoke-test-key \
             --env SPOTFLOW_DEVICE_ID=ci-smoke-test \
             --env SPOTFLOW_CRASH_AFTER=5 \
-            "${TEST_TAG}" > /dev/null
+            virtual-device:test-amd64 > /dev/null
 
           # The restart follows the crash after about 15 seconds
           for _ in $(seq 90); do
@@ -97,6 +111,32 @@ jobs:
             fi
           done
 
+      - name: Test that the firmware boots (arm64, emulated)
+        # On this runner the arm64 QEMU binary itself runs inside a second,
+        # user-mode QEMU, which is slow. Reaching the credentials message shows
+        # that the arm64 image runs the firmware. The crash path uses the same
+        # ELF and is covered by the amd64 test.
+        run: |
+          docker run --detach --name smoke-test-arm64 --platform linux/arm64 --network none \
+            --env SPOTFLOW_INGEST_KEY=smoke-test-key \
+            --env SPOTFLOW_DEVICE_ID=ci-smoke-test \
+            --env SPOTFLOW_CRASH_AFTER=0 \
+            virtual-device:test-arm64 > /dev/null
+
+          marker="Run-time credentials loaded (device ID: ci-smoke-test, ingest key: provided)"
+          for _ in $(seq 180); do
+            docker logs smoke-test-arm64 > boot-arm64.log 2>&1
+            grep -qF "${marker}" boot-arm64.log && break
+            sleep 1
+          done
+          docker rm --force smoke-test-arm64 > /dev/null
+          cat boot-arm64.log
+
+          if ! grep -qF "${marker}" boot-arm64.log; then
+            echo "::error::The arm64 device log does not contain: ${marker}"
+            exit 1
+          fi
+
       - name: Log in to GitHub Container Registry
         if: github.ref == 'refs/heads/main'
         env:
@@ -106,14 +146,26 @@ jobs:
 
       - name: Publish image
         if: github.ref == 'refs/heads/main'
+        env:
+          SOURCE_URL: ${{ github.server_url }}/${{ github.repository }}
+          DESCRIPTION: Zephyr RTOS firmware with the Spotflow device SDK, running on an emulated Cortex-M3 in QEMU. No hardware needed.
         run: |
-          for tag in latest "sha-${GITHUB_SHA::7}"; do
-            docker tag "${TEST_TAG}" "${IMAGE}:${tag}"
-            docker push "${IMAGE}:${tag}"
-          done
+          # GHCR shows the description of a multi-platform image from the
+          # index annotation, and the labels when you inspect a single image.
+          docker buildx build --platform "${PLATFORMS}" --push \
+            --label "org.opencontainers.image.title=Spotflow virtual device" \
+            --label "org.opencontainers.image.description=${DESCRIPTION}" \
+            --label "org.opencontainers.image.source=${SOURCE_URL}" \
+            --label "org.opencontainers.image.url=${SOURCE_URL}/tree/main/zephyr-virtual-device" \
+            --label "org.opencontainers.image.revision=${GITHUB_SHA}" \
+            --annotation "index:org.opencontainers.image.description=${DESCRIPTION}" \
+            --annotation "index:org.opencontainers.image.source=${SOURCE_URL}" \
+            --tag "${IMAGE}:latest" \
+            --tag "${IMAGE}:sha-${GITHUB_SHA::7}" \
+            zephyr-virtual-device
 
           {
-            echo "Published \`${IMAGE}:latest\` and \`${IMAGE}:sha-${GITHUB_SHA::7}\`."
+            echo "Published \`${IMAGE}:latest\` and \`${IMAGE}:sha-${GITHUB_SHA::7}\` for ${PLATFORMS}."
             echo
             echo '```sh'
             echo "docker run --rm -it -e SPOTFLOW_INGEST_KEY=\"<your-ingest-key>\" ${IMAGE}"

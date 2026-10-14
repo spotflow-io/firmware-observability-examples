@@ -4,9 +4,14 @@
 #   --target toolchain   Zephyr build environment
 #   --target build       toolchain + this example built for mps2/an385
 #   (default)            small run-time image: QEMU + the prebuilt firmware
+#
+# The firmware is the same whatever machine runs it, so the toolchain and build
+# stages always run on the build host's own platform ($BUILDPLATFORM). Only the
+# run-time stage is built per target platform, which lets one build publish
+# linux/amd64 and linux/arm64 (Apple Silicon) images with an identical ELF.
 
 # ---------------------------------------------------------------------------
-FROM ubuntu:24.04 AS toolchain
+FROM --platform=$BUILDPLATFORM ubuntu:24.04 AS toolchain
 
 ARG ZEPHYR_SDK_VERSION=1.0.1
 ENV DEBIAN_FRONTEND=noninteractive
