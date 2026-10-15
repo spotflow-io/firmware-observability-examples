@@ -1,9 +1,13 @@
 # A small fleet of virtual devices. Each replica gets its own device ID from
 # the container hostname.
 #
-#   SPOTFLOW_INGEST_KEY=<your-ingest-key> docker compose up --build --scale device=5
+#   SPOTFLOW_INGEST_KEY=<your-ingest-key> docker compose up --scale device=5
+#
+# Compose pulls the published image. Add --build to build the image from this
+# folder instead, for example after you change the firmware.
 services:
   device:
+    image: ghcr.io/spotflow-io/virtual-device
     build: .
     environment:
       SPOTFLOW_INGEST_KEY: ${SPOTFLOW_INGEST_KEY:?Set SPOTFLOW_INGEST_KEY}

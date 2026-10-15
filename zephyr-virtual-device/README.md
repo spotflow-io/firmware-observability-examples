@@ -34,14 +34,13 @@ The automatic crash fires once per QEMU run. After the reset the device keeps ru
 - A Spotflow account and [ingest key](https://docs.spotflow.io/fundamentals/device-authorization?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_zephyr_virtual_device_readme&utm_content=link_fundamentals_device_authorization_docker): [sign up for free](https://app.spotflow.io/signup?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_zephyr_virtual_device_readme&utm_content=cta_signup_docker)
 - Docker
 
-### Build and run
+### Run the device
 
 ```sh
-docker build -t spotflow-virtual-device .
-docker run --rm -it -e SPOTFLOW_INGEST_KEY="<your-ingest-key>" spotflow-virtual-device
+docker run --rm -it -e SPOTFLOW_INGEST_KEY="<your-ingest-key>" ghcr.io/spotflow-io/virtual-device
 ```
 
-The first command builds the firmware inside the image, which takes a few minutes. The second one starts the device.
+Docker pulls the prebuilt image from the GitHub Container Registry and starts the device. The image is published for `linux/amd64` and `linux/arm64`, so it also runs natively on Apple Silicon Macs.
 
 | Variable | Default | Meaning |
 | --- | --- | --- |
@@ -56,7 +55,7 @@ Press `c` to trigger the crash at any time. Stop the device with `Ctrl+C`.
 Copy the symbol file out of the image and upload it to Spotflow before you look at the crash report. Without it, stack frames show only raw addresses.
 
 ```sh
-docker run --rm spotflow-virtual-device elf > zephyr.elf
+docker run --rm ghcr.io/spotflow-io/virtual-device elf > zephyr.elf
 ```
 
 See [Upload ELF file with symbols](https://docs.spotflow.io/guides/zephyr/crash-reports-zephyr?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_zephyr_virtual_device_readme&utm_content=link_guide_crash_reports_zephyr_elf#recommended-upload-elf-file-with-symbols) for the upload steps. Spotflow links the ELF to the core dump using the build ID embedded in both.
@@ -64,10 +63,20 @@ See [Upload ELF file with symbols](https://docs.spotflow.io/guides/zephyr/crash-
 ### Run a fleet
 
 ```sh
-SPOTFLOW_INGEST_KEY="<your-ingest-key>" docker compose up --build --scale device=5
+SPOTFLOW_INGEST_KEY="<your-ingest-key>" docker compose up --scale device=5
 ```
 
 Each replica gets its own device ID from the container hostname. The Free plan covers 25 devices.
+
+### Build the image yourself
+
+Build the image from this folder when you change the firmware:
+
+```sh
+docker build -t ghcr.io/spotflow-io/virtual-device .
+```
+
+The build compiles the firmware inside the image, which takes a few minutes. The local image has the same name as the published one, so the commands above now run your build, and the ELF file you copy out always matches the firmware you run. For a fleet, `docker compose up --build --scale device=5` does the same. To go back to the published image, run `docker pull ghcr.io/spotflow-io/virtual-device`.
 
 ## Option 2: Build the firmware yourself
 
