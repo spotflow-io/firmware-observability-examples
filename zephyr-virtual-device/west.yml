@@ -1,0 +1,22 @@
+manifest:
+  projects:
+    # Zephyr RTOS - ARM MPS2+ AN385 (Cortex-M3), emulated by QEMU
+    - name: zephyr
+      url: https://github.com/zephyrproject-rtos/zephyr
+      revision: v4.4.0
+      clone-depth: 1
+      import:
+        path-prefix: external
+        name-allowlist:
+          - cmsis_6
+          - mbedtls
+          - zcbor
+          - mldsa-native
+          - tf-psa-crypto
+
+    # Spotflow Device SDK. CONFIG_SPOTFLOW_INGEST_KEY_DYNAMIC, which the
+    # prebuilt Docker image needs, is on main since commit 0349981.
+    - name: spotflow-device-sdk
+      url: https://github.com/spotflow-io/device-sdk
+      revision: main
+      path: external/modules/lib/spotflow

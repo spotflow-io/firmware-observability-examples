@@ -1,0 +1,11 @@
+rsource "src/net/Kconfig"
+
+config VIRTUAL_DEVICE_CRASH_AFTER_SECONDS
+	int "Trigger the demo crash automatically this many seconds after the first boot"
+	default 0
+	help
+	  0 disables the automatic crash. The crash can always be triggered by
+	  pressing 'c' in the console. A value passed to QEMU at run time in the
+	  credentials block (crash_after=<seconds>) takes precedence.
+
+source "Kconfig.zephyr"

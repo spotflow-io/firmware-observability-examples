@@ -1,0 +1,56 @@
+/*
+ * QEMU's mps2-an385 machine has 16 MiB of PSRAM at 0x21000000 that Zephyr's
+ * board definition does not use. This overlay puts two things there:
+ *
+ *   0x21000000  2 MiB   the board's simulated flash, moved out of .bss so
+ *                       that it keeps its content across a reset
+ *   0x21f00000  4 KiB   run-time credentials block, written by QEMU's
+ *                       generic loader (-device loader,file=...,addr=0x21f00000)
+ *
+ * Simulated flash layout after this overlay:
+ *   storage_partition   0x00000000   64 KiB   (NVS / settings)
+ *   coredump_partition  0x00010000    1 MiB   (Zephyr coredump backend)
+ *
+ * RAM content survives a warm reset in QEMU, so a core dump written before
+ * the reboot is still there when the firmware starts again. It does not
+ * survive a QEMU restart.
+ */
+
+#include <mem.h>
+
+/ {
+	psram: memory@21000000 {
+		compatible = "zephyr,memory-region", "mmio-sram";
+		reg = <0x21000000 DT_SIZE_M(2)>;
+		zephyr,memory-region = "PSRAM";
+	};
+
+	vdev_credentials: memory@21f00000 {
+		compatible = "mmio-sram";
+		reg = <0x21f00000 DT_SIZE_K(4)>;
+	};
+};
+
+/delete-node/ &storage_partition;
+
+&sim_flash_controller {
+	/* With a memory region, the simulator does not erase the flash at boot */
+	memory-region = <&psram>;
+};
+
+&flash_sim0 {
+	reg = <0x00000000 DT_SIZE_M(2)>;
+	erase-block-size = <4096>;
+
+	partitions {
+		storage_partition: partition@0 {
+			label = "storage";
+			reg = <0x00000000 DT_SIZE_K(64)>;
+		};
+
+		coredump_partition: partition@10000 {
+			label = "coredump-partition";
+			reg = <0x00010000 DT_SIZE_K(1024)>;
+		};
+	};
+};
