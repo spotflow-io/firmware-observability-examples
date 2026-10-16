@@ -16,12 +16,15 @@ on:
     paths:
       - zephyr-virtual-device/**
       - "!zephyr-virtual-device/**.md"
+      # The image contains LICENSES.md
+      - zephyr-virtual-device/LICENSES.md
       - .github/workflows/zephyr-virtual-device-image.yml
       - .github/workflows/build-virtual-device-image.yml
   pull_request:
     paths:
       - zephyr-virtual-device/**
       - "!zephyr-virtual-device/**.md"
+      - zephyr-virtual-device/LICENSES.md
       - .github/workflows/zephyr-virtual-device-image.yml
       - .github/workflows/build-virtual-device-image.yml
   workflow_dispatch:
@@ -41,3 +44,5 @@ jobs:
       example: zephyr-virtual-device
       title: Spotflow virtual device (Zephyr)
       description: Zephyr RTOS firmware with the Spotflow device SDK, running on an emulated Arm Cortex-M3 board in QEMU. No hardware needed.
+      # The main licenses only. zephyr-virtual-device/LICENSES.md lists all of them.
+      licenses: MIT AND BUSL-1.1 AND Apache-2.0 AND BSD-3-Clause AND GPL-2.0-only
