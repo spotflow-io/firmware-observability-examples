@@ -7,7 +7,7 @@
 # folder instead, for example after you change the firmware.
 services:
   device:
-    image: ghcr.io/spotflow-io/virtual-device
+    image: ghcr.io/spotflow-io/zephyr-virtual-device
     build: .
     environment:
       SPOTFLOW_INGEST_KEY: ${SPOTFLOW_INGEST_KEY:?Set SPOTFLOW_INGEST_KEY}

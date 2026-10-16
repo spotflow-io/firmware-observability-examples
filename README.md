@@ -4,7 +4,7 @@
 [![Docs](https://img.shields.io/badge/docs-docs.spotflow.io-blue)](https://docs.spotflow.io/?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_readme&utm_content=badge_docs)
 [![Blog](https://img.shields.io/badge/blog-spotflow.io%2Fblog-blue)](https://spotflow.io/blog?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_readme&utm_content=badge_blog)
 
-Real-world firmware examples for the [Spotflow](https://spotflow.io/?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_readme&utm_content=inline_hero) observability platform. Each example accompanies a Spotflow blog post and provides complete, buildable code that you can clone, adapt, and use as a starting point for your own projects.
+Real-world firmware examples for the [Spotflow](https://spotflow.io/?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_readme&utm_content=inline_hero) observability platform. Most examples accompany a Spotflow blog post, and each one provides complete, buildable code that you can clone, adapt, and use as a starting point for your own projects.
 
 ---
 
@@ -17,6 +17,24 @@ Spotflow integrates with [Zephyr RTOS](https://www.zephyrproject.org/) and [nRF 
 - [Documentation](https://docs.spotflow.io/?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_readme&utm_content=link_docs)
 - [Device SDK](https://github.com/spotflow-io/device-sdk)
 - [Sign up for free](https://app.spotflow.io/signup?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_readme&utm_content=cta_signup)
+
+---
+
+## Virtual Devices: Try Spotflow Without Hardware
+
+Some examples are also published as Docker images. A virtual device runs the example's real firmware on emulated hardware, so you can see logs, metrics, and crash reports in Spotflow without a development board.
+
+| Virtual device | Firmware | Image |
+|----------------|----------|-------|
+| [zephyr-virtual-device](./zephyr-virtual-device/) | Zephyr RTOS on an emulated Arm Cortex-M3 board (QEMU) | `ghcr.io/spotflow-io/zephyr-virtual-device` |
+
+To start one, [sign up for free](https://app.spotflow.io/signup?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_readme&utm_content=cta_signup_virtual_devices), copy an ingest key, and run:
+
+```sh
+docker run --rm -it -e SPOTFLOW_INGEST_KEY="<your-ingest-key>" ghcr.io/spotflow-io/zephyr-virtual-device
+```
+
+The [Try Spotflow Without Hardware](https://docs.spotflow.io/quickstart/virtual-device?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_readme&utm_content=link_quickstart_virtual_device) quickstart walks you through it, and each example's README covers the details.
 
 ---
 
@@ -36,7 +54,7 @@ Spotflow integrates with [Zephyr RTOS](https://www.zephyrproject.org/) and [nRF 
 ## Getting Started
 
 1. **Sign up** for a free Spotflow account at [app.spotflow.io/signup](https://app.spotflow.io/signup?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_readme&utm_content=cta_signup), no credit card required.
-2. **Pick an example** from the table above and open its `README.md`.
+2. **Pick an example** from the table above and open its `README.md`. No board at hand? Start with a [virtual device](#virtual-devices-try-spotflow-without-hardware).
 3. **Follow the build and flash instructions** inside the example to connect your device to Spotflow.
 
 ---
