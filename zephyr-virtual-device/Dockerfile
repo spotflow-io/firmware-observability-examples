@@ -48,14 +48,45 @@ RUN west update --fetch-opt=--depth=1 --narrow \
 # No credentials.conf here: the image takes the ingest key at run time
 RUN west build --pristine --board mps2/an385
 
+# License texts of everything compiled into the firmware, listed in LICENSES.md:
+#   - the license files of each west project,
+#   - picolibc and libgcc, which come from the Zephyr SDK toolchain,
+#   - the notice of each compiled file under a license other than Apache-2.0,
+#     for example the BSD-3-Clause files in Zephyr.
+RUN mkdir -p /licenses/file-notices \
+    && west list -f '{name} {path}' | while read -r name path; do \
+           [ "$name" = manifest ] && continue; \
+           mkdir -p "/licenses/$name"; \
+           cp "$path"/LICENSE* "$path"/COPYING* "/licenses/$name/" 2>/dev/null; \
+           [ -n "$(ls "/licenses/$name")" ] || { echo "No license file in $path" >&2; exit 1; }; \
+       done \
+    && toolchain="$ZEPHYR_SDK_INSTALL_DIR/gnu/arm-zephyr-eabi/share/licenses" \
+    && cp -r "$toolchain/picolibc" /licenses/picolibc \
+    && mkdir /licenses/libgcc \
+    && cp "$toolchain/gcc/COPYING3" "$toolchain/gcc/COPYING.RUNTIME" /licenses/libgcc/ \
+    && grep -o '"file": "[^"]*"' build/compile_commands.json | cut -d '"' -f 4 | sort -u \
+       | while read -r src; do \
+             id="$(grep -m 1 -o 'SPDX-License-Identifier: [^*]*' "$src" | cut -d ' ' -f 2- | sed 's/ *$//')"; \
+             case "$id" in "" | Apache-2.0 | "Apache-2.0 OR GPL-2.0-or-later") continue ;; esac; \
+             sed -n '1,/^ \*\//p' "$src" > "/licenses/file-notices/$(echo "${src#*/external/}" | tr / _).txt"; \
+         done
+
 # ---------------------------------------------------------------------------
 FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
+# Each Ubuntu package keeps its license in /usr/share/doc/<package>/copyright.
+# ubuntu-source-packages.txt names the source package and version of each one,
+# which is where its source code comes from.
 RUN apt-get update && apt-get install -y --no-install-recommends qemu-system-arm \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && mkdir -p /opt/virtual-device/licenses \
+    && dpkg-query -W -f '${source:Package} ${source:Version}\n' | sort -u \
+        > /opt/virtual-device/licenses/ubuntu-source-packages.txt
 
 COPY --from=build /workspace/zephyr-virtual-device/build/zephyr/zephyr.elf /opt/virtual-device/zephyr.elf
+COPY --from=build /licenses /opt/virtual-device/licenses
+COPY LICENSES.md /opt/virtual-device/licenses/
 COPY run-virtual-device.sh /usr/local/bin/run-virtual-device.sh
 
 ENTRYPOINT ["run-virtual-device.sh"]
