@@ -1,0 +1,122 @@
+name: Build virtual device image
+
+# Reusable workflow for the virtual device examples. A virtual device is an
+# example whose firmware also ships as a Docker image that runs it on
+# emulated hardware. The image is published as ghcr.io/spotflow-io/<example>,
+# named after the example folder.
+#
+# Builds the image for linux/amd64 and linux/arm64, runs the example's smoke
+# test, and publishes the image from main. The firmware is compiled once,
+# natively on the runner, and the same ELF goes into both images. Only the
+# small run-time stage is built for arm64, under emulation.
+#
+# Each virtual device example calls this workflow from its own short workflow,
+# for example zephyr-virtual-device-image.yml, and provides:
+#   - a Dockerfile,
+#   - a launcher that prints the firmware ELF when started with "elf",
+#   - ci/smoke-test.sh [--boot-only] <image> <platform>.
+
+on:
+  workflow_call:
+    inputs:
+      example:
+        description: Example folder, also the image name
+        required: true
+        type: string
+      title:
+        description: Image title shown in the registry
+        required: true
+        type: string
+      description:
+        description: Image description shown in the registry (512 characters at most)
+        required: true
+        type: string
+
+jobs:
+  image:
+    name: Build, test and publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      packages: write
+    env:
+      EXAMPLE: ${{ inputs.example }}
+      IMAGE: ghcr.io/spotflow-io/${{ inputs.example }}
+      PLATFORMS: linux/amd64,linux/arm64
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up QEMU for the arm64 image
+        uses: docker/setup-qemu-action@v4
+        with:
+          platforms: arm64
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build images
+        # The publish step at the end reuses these layers from the build cache
+        run: |
+          for arch in amd64 arm64; do
+            docker buildx build --platform "linux/${arch}" --load \
+              --tag "${EXAMPLE}:test-${arch}" \
+              "${EXAMPLE}"
+          done
+
+      - name: Test that both images contain the same firmware ELF
+        run: |
+          for arch in amd64 arm64; do
+            docker run --rm --platform "linux/${arch}" "${EXAMPLE}:test-${arch}" elf > "firmware-${arch}.elf"
+            file "firmware-${arch}.elf" | tee /dev/stderr | grep -q "ELF 32-bit"
+          done
+          # Identical ELFs mean identical build IDs, so a core dump from either
+          # image matches the symbol file extracted from either image.
+          cmp firmware-amd64.elf firmware-arm64.elf
+
+      - name: Smoke test (amd64)
+        run: '"${EXAMPLE}/ci/smoke-test.sh" "${EXAMPLE}:test-amd64" linux/amd64'
+
+      - name: Smoke test (arm64, emulated, boot only)
+        # On this runner the arm64 QEMU binary itself runs inside a second,
+        # user-mode QEMU, which is slow. The amd64 test covers the rest with
+        # the same ELF.
+        run: '"${EXAMPLE}/ci/smoke-test.sh" --boot-only "${EXAMPLE}:test-arm64" linux/arm64'
+
+      - name: Log in to GitHub Container Registry
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_ACTOR: ${{ github.actor }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "${GH_TOKEN}" | docker login ghcr.io --username "${GH_ACTOR}" --password-stdin
+
+      - name: Publish image
+        if: github.ref == 'refs/heads/main'
+        env:
+          SOURCE_URL: ${{ github.server_url }}/${{ github.repository }}
+          TITLE: ${{ inputs.title }}
+          DESCRIPTION: ${{ inputs.description }}
+        run: |
+          # GHCR shows the description of a multi-platform image from the
+          # index annotation, and the labels when you inspect a single image.
+          docker buildx build --platform "${PLATFORMS}" --push \
+            --label "org.opencontainers.image.title=${TITLE}" \
+            --label "org.opencontainers.image.description=${DESCRIPTION}" \
+            --label "org.opencontainers.image.source=${SOURCE_URL}" \
+            --label "org.opencontainers.image.url=${SOURCE_URL}/tree/main/${EXAMPLE}" \
+            --label "org.opencontainers.image.revision=${GITHUB_SHA}" \
+            --annotation "index:org.opencontainers.image.description=${DESCRIPTION}" \
+            --annotation "index:org.opencontainers.image.source=${SOURCE_URL}" \
+            --tag "${IMAGE}:latest" \
+            --tag "${IMAGE}:sha-${GITHUB_SHA::7}" \
+            "${EXAMPLE}"
+
+          {
+            echo "Published \`${IMAGE}:latest\` and \`${IMAGE}:sha-${GITHUB_SHA::7}\` for ${PLATFORMS}."
+            echo
+            echo '```sh'
+            echo "docker run --rm -it -e SPOTFLOW_INGEST_KEY=\"<your-ingest-key>\" ${IMAGE}"
+            echo '```'
+          } >> "${GITHUB_STEP_SUMMARY}"
