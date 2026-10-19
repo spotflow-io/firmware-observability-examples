@@ -13,7 +13,6 @@ name: Build virtual device image
 # Each virtual device example calls this workflow from its own short workflow,
 # for example zephyr-virtual-device-image.yml, and provides:
 #   - a Dockerfile,
-#   - LICENSES.md, the licenses of everything in the image, also copied into it,
 #   - a launcher that prints the firmware ELF when started with "elf",
 #   - ci/smoke-test.sh [--boot-only] <image> <platform>.
 
@@ -30,10 +29,6 @@ on:
         type: string
       description:
         description: Image description shown in the registry (512 characters at most)
-        required: true
-        type: string
-      licenses:
-        description: SPDX expression of the main licenses in the image, shown in the registry (256 characters at most)
         required: true
         type: string
 
@@ -103,20 +98,16 @@ jobs:
           SOURCE_URL: ${{ github.server_url }}/${{ github.repository }}
           TITLE: ${{ inputs.title }}
           DESCRIPTION: ${{ inputs.description }}
-          LICENSES: ${{ inputs.licenses }}
         run: |
-          # GHCR shows the description and the licenses of a multi-platform
-          # image from the index annotations, and the labels when you inspect
-          # a single image.
+          # GHCR shows the description of a multi-platform image from the
+          # index annotation, and the labels when you inspect a single image.
           docker buildx build --platform "${PLATFORMS}" --push \
             --label "org.opencontainers.image.title=${TITLE}" \
             --label "org.opencontainers.image.description=${DESCRIPTION}" \
-            --label "org.opencontainers.image.licenses=${LICENSES}" \
             --label "org.opencontainers.image.source=${SOURCE_URL}" \
             --label "org.opencontainers.image.url=${SOURCE_URL}/tree/main/${EXAMPLE}" \
             --label "org.opencontainers.image.revision=${GITHUB_SHA}" \
             --annotation "index:org.opencontainers.image.description=${DESCRIPTION}" \
-            --annotation "index:org.opencontainers.image.licenses=${LICENSES}" \
             --annotation "index:org.opencontainers.image.source=${SOURCE_URL}" \
             --tag "${IMAGE}:latest" \
             --tag "${IMAGE}:sha-${GITHUB_SHA::7}" \
