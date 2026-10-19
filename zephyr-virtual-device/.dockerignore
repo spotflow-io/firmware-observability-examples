@@ -3,3 +3,4 @@ build/
 external/
 credentials.conf
 .cache/
+ci/
