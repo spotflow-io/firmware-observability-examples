@@ -48,6 +48,14 @@ RUN west update --fetch-opt=--depth=1 --narrow \
 # No credentials.conf here: the image takes the ingest key at run time
 RUN west build --pristine --board mps2/an385
 
+# License texts of the firmware's components: the license file of each west
+# project and that of picolibc, the C library of the Zephyr SDK. The Ubuntu
+# packages of the run-time image already carry theirs in /usr/share/doc.
+RUN west list -f '{name} {path}' | grep -v '^manifest ' | while read -r name path; do \
+        mkdir -p "/licenses/$name" && cp -r "$path"/LICENSE* "/licenses/$name/" || exit 1; \
+    done \
+    && cp -r "$ZEPHYR_SDK_INSTALL_DIR/gnu/arm-zephyr-eabi/share/licenses/picolibc" /licenses/
+
 # ---------------------------------------------------------------------------
 FROM ubuntu:24.04
 
@@ -56,6 +64,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends qemu-system-arm
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /workspace/zephyr-virtual-device/build/zephyr/zephyr.elf /opt/virtual-device/zephyr.elf
+COPY --from=build /licenses /opt/virtual-device/licenses
 COPY run-virtual-device.sh /usr/local/bin/run-virtual-device.sh
 
 ENTRYPOINT ["run-virtual-device.sh"]

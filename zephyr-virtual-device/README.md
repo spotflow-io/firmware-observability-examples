@@ -216,6 +216,17 @@ The crash report appears in the [Events](https://app.spotflow.io/events?utm_sour
 - `credentials-sample.conf`: template for build-time Spotflow credentials
 - `runtime-credentials.conf`: enables the run-time ingest key when `credentials.conf` does not exist
 
+## Licenses
+
+The example code is licensed under the MIT License, like the rest of this repository. The firmware and the Docker image also contain third-party software under its own licenses:
+
+- **Spotflow Device SDK**: Business Source License 1.1, which permits its use only for interacting with the Spotflow Platform
+- **Zephyr RTOS** and the Zephyr modules that `west.yml` imports: Apache-2.0
+- **picolibc**, the C library of the Zephyr SDK: BSD-style licenses
+- **QEMU** (GPL-2.0) and the other Ubuntu 24.04 packages of the image, each under its own license
+
+The image contains the license texts of the firmware components in `/opt/virtual-device/licenses` and those of the Ubuntu packages in `/usr/share/doc`. The source code of the Ubuntu packages is in the Ubuntu archive. As with any prebuilt image, you are responsible for using it in line with the licenses of the software it contains.
+
 ## Related links
 
 - [Quickstart: Zephyr Integration](https://docs.spotflow.io/quickstart/zephyr?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_zephyr_virtual_device_readme&utm_content=link_quickstart_zephyr)

@@ -71,4 +71,4 @@ The [Try Spotflow Without Hardware](https://docs.spotflow.io/quickstart/virtual-
 
 ## License
 
-The code in this repository is licensed under the MIT License, see [LICENSE](./LICENSE) for details.
+The code in this repository is licensed under the MIT License, see [LICENSE](./LICENSE) for details. The virtual device images also contain third-party software under its own licenses. Each virtual device's README lists them, for example [zephyr-virtual-device](./zephyr-virtual-device/README.md#licenses).
