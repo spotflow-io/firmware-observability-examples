@@ -34,25 +34,13 @@ The automatic crash fires once per QEMU run. After the reset the device keeps ru
 - A Spotflow account and [ingest key](https://docs.spotflow.io/fundamentals/device-authorization?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_zephyr_virtual_device_readme&utm_content=link_fundamentals_device_authorization_docker): [sign up for free](https://app.spotflow.io/signup?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_zephyr_virtual_device_readme&utm_content=cta_signup_docker)
 - Docker
 
-### Upload the ELF file
-
-Copy the symbol file out of the image and upload it to Spotflow before you start the device, so that the crash report is analyzed as soon as it arrives. Without it, stack frames show only raw addresses.
-
-```sh
-docker run --rm ghcr.io/spotflow-io/zephyr-virtual-device elf > zephyr.elf
-```
-
-Docker pulls the prebuilt image from the GitHub Container Registry. The image is published for `linux/amd64` and `linux/arm64`, so it also runs natively on Apple Silicon Macs.
-
-See [Upload ELF file with symbols](https://docs.spotflow.io/guides/zephyr/crash-reports-zephyr?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_zephyr_virtual_device_readme&utm_content=link_guide_crash_reports_zephyr_elf#recommended-upload-elf-file-with-symbols) for the upload steps. Spotflow links the ELF to the core dump using the build ID embedded in both.
-
 ### Run the device
 
 ```sh
 docker run --rm -it -e SPOTFLOW_INGEST_KEY="<your-ingest-key>" ghcr.io/spotflow-io/zephyr-virtual-device
 ```
 
-Docker starts the device from the same image, so its build ID matches the ELF file you uploaded.
+Docker pulls the prebuilt image from the GitHub Container Registry and starts the device. The image is published for `linux/amd64` and `linux/arm64`, so it also runs natively on Apple Silicon Macs.
 
 | Variable | Default | Meaning |
 | --- | --- | --- |
@@ -61,6 +49,16 @@ Docker starts the device from the same image, so its build ID matches the ELF fi
 | `SPOTFLOW_CRASH_AFTER` | `60` | Seconds until the demo crash. `0` disables the timer. |
 
 Press `c` to trigger the crash at any time. Stop the device with `Ctrl+C`.
+
+### Upload the ELF file
+
+Copy the symbol file out of the image and upload it to Spotflow. Spotflow analyzes each crash report that arrives after the upload, so press `c` to crash the device again and see the decoded stack trace and the AI analysis. Without the symbol file, Spotflow can't decode the stack trace.
+
+```sh
+docker run --rm ghcr.io/spotflow-io/zephyr-virtual-device elf > zephyr.elf
+```
+
+See [Upload ELF file with symbols](https://docs.spotflow.io/guides/zephyr/crash-reports-zephyr?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_zephyr_virtual_device_readme&utm_content=link_guide_crash_reports_zephyr_elf#recommended-upload-elf-file-with-symbols) for the upload steps. Spotflow links the ELF to the core dump using the build ID embedded in both.
 
 ### Run a fleet
 
