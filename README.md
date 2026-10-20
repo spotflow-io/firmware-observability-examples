@@ -34,7 +34,7 @@ To start one, [sign up for free](https://app.spotflow.io/signup?utm_source=githu
 docker run --rm -it -e SPOTFLOW_INGEST_KEY="<your-ingest-key>" ghcr.io/spotflow-io/zephyr-virtual-device
 ```
 
-The [Try Spotflow Without Hardware](https://docs.spotflow.io/quickstart/virtual-device?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_readme&utm_content=link_quickstart_virtual_device) quickstart walks you through it, and each example's README covers the details.
+The [Zephyr on QEMU](https://docs.spotflow.io/quickstart/zephyr-qemu?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_readme&utm_content=link_quickstart_zephyr_qemu) quickstart walks you through it, and each example's README covers the details.
 
 ---
 
