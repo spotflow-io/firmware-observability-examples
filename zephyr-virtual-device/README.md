@@ -1,6 +1,6 @@
 # Spotflow Virtual Device: Zephyr RTOS on QEMU, No Hardware Needed
 
-This example runs real Zephyr RTOS firmware with the [Spotflow](https://docs.spotflow.io/?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_zephyr_virtual_device_readme&utm_content=link_docs_intro) device SDK on an emulated ARM Cortex-M3 board. You need no development board, no debug probe, and, if you use the Docker image, no toolchain. Logs and metrics reach your Spotflow workspace seconds after the device starts, and a crash report with AI analysis follows about a minute later.
+This example runs real Zephyr RTOS firmware with the [Spotflow](https://docs.spotflow.io/?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_zephyr_virtual_device_readme&utm_content=link_docs_intro) device SDK on an emulated ARM Cortex-M3 board. You need no development board, no debug probe, and, if you use the Docker image, no toolchain. After the device starts, you see its logs and metrics in Spotflow. Then it crashes on purpose. Upload the firmware's ELF file, and each crash after that gets a decoded stack trace and AI analysis.
 
 Runs on: **QEMU, machine `mps2-an385`** (ARM MPS2+ AN385). The firmware is the same code you would flash to a physical board. Only the network interface, the flash, and the way credentials arrive are emulated.
 
@@ -142,9 +142,7 @@ west build --pristine --board mps2/an385
 west build -t run
 ```
 
-`west build -t run` starts QEMU with the credentials from `credentials.conf`. The automatic crash is off in this mode, so press `c` to trigger it. Exit QEMU with `Ctrl+A`, then `X`.
-
-Upload `build/zephyr/zephyr.elf` to Spotflow as described above.
+`west build -t run` starts QEMU with the credentials from `credentials.conf`. The automatic crash is off in this mode, so upload `build/zephyr/zephyr.elf` to Spotflow as described above, then press `c` to trigger the crash. Exit QEMU with `Ctrl+A`, then `X`.
 
 To pass the ingest key at run time instead, build without `credentials.conf`. The build then picks up `runtime-credentials.conf`, which enables `CONFIG_SPOTFLOW_INGEST_KEY_DYNAMIC`, and the launcher script supplies the key:
 
