@@ -175,7 +175,7 @@ System metrics collected automatically (no application code required):
 ## Related links
 
 - [Blog post: Debugging a Zephyr RTOS Crash with Spotflow AI Analysis](https://spotflow.io/blog/zephyr-crash-debugging)
-- [Fundamentals: Crash reports & core dumps](https://docs.spotflow.io/fundamentals/crash-reports)
+- [Fundamentals: Crash reports & core dumps](https://docs.spotflow.io/fundamentals/monitoring/crash-reports)
 - [Guide: Crash reports with Zephyr](https://docs.spotflow.io/guides/zephyr/crash-reports-zephyr)
-- [Fundamentals: Metrics](https://docs.spotflow.io/fundamentals/metrics)
+- [Fundamentals: Metrics](https://docs.spotflow.io/fundamentals/monitoring/metrics)
 - [Spotflow Device SDK](https://github.com/spotflow-io/device-sdk)

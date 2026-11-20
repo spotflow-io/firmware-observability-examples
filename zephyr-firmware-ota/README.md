@@ -149,7 +149,7 @@ The OTA image to upload is:
 build-v2/zephyr-firmware-ota/zephyr/zephyr.signed.bin
 ```
 
-Follow the [Spotflow OTA update deployment guide](https://docs.spotflow.io/guides/ota) to:
+Follow the [Spotflow OTA update deployment guide](https://docs.spotflow.io/using-spotflow/guides/ota) to:
 
 1. Upload the signed image to a new firmware version on the [Firmwares](https://app.spotflow.io/firmwares) page.
 2. Create a deployment cohort and add your device.
@@ -192,6 +192,6 @@ The device then reports success to the Spotflow portal and the deployment shows 
 
 - [Blog post: Over-the-Air Firmware Updates on Zephyr RTOS with Spotflow](https://spotflow.io/blog/zephyr-firmware-ota)
 - [Guide: Over-the-air (OTA) updates with Zephyr](https://docs.spotflow.io/guides/zephyr/ota-zephyr)
-- [Guide: Deploy Over-the-Air (OTA) Updates](https://docs.spotflow.io/guides/ota)
+- [Guide: Deploy Over-the-Air (OTA) Updates](https://docs.spotflow.io/using-spotflow/guides/ota)
 - [Fundamentals: Over-the-air (OTA) updates](https://docs.spotflow.io/fundamentals/ota)
 - [Spotflow Device SDK](https://github.com/spotflow-io/device-sdk)

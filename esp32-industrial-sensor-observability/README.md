@@ -14,7 +14,7 @@ The scenario is intentionally concrete: a sensor node starts showing CRC errors,
 
 ## Runtime behavior
 
-This example boots through MCUboot, starts the Zephyr application, connects to Wi-Fi, and then connects to Spotflow over [MQTT/TLS](https://docs.spotflow.io/fundamentals/logging?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_fundamentals_logging_mqtt_tls#transport-protocol). Once connected, it continuously streams [remote logs](https://docs.spotflow.io/fundamentals/logging?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_fundamentals_logging_runtime), [system and custom metrics](https://docs.spotflow.io/fundamentals/metrics?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_fundamentals_metrics_runtime), and [crash artifacts](https://docs.spotflow.io/fundamentals/crash-reports?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_fundamentals_crash_reports_runtime). The firmware simulates an industrial sensor node that periodically uploads sensor batches and occasionally emits warning signs such as CRC mismatches and sensor backlog growth. Pressing the user button triggers a deterministic crash path; after reboot, the device reconnects to Wi-Fi and Spotflow and resumes reporting.
+This example boots through MCUboot, starts the Zephyr application, connects to Wi-Fi, and then connects to Spotflow over [MQTT/TLS](https://docs.spotflow.io/fundamentals/monitoring/logging?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_fundamentals_logging_mqtt_tls#transport-protocol). Once connected, it continuously streams [remote logs](https://docs.spotflow.io/fundamentals/monitoring/logging?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_fundamentals_logging_runtime), [system and custom metrics](https://docs.spotflow.io/fundamentals/monitoring/metrics?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_fundamentals_metrics_runtime), and [crash artifacts](https://docs.spotflow.io/fundamentals/monitoring/crash-reports?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_fundamentals_crash_reports_runtime). The firmware simulates an industrial sensor node that periodically uploads sensor batches and occasionally emits warning signs such as CRC mismatches and sensor backlog growth. Pressing the user button triggers a deterministic crash path; after reboot, the device reconnects to Wi-Fi and Spotflow and resumes reporting.
 
 ## What this example demonstrates
 
@@ -121,7 +121,7 @@ west flash
 
 If your ESP32 flashing setup requires an explicit serial device, pass the appropriate runner option for your environment.
 
-Once the device is running and shows `MQTT connected!` on UART, it is streaming logs, metrics, and crash artifacts to Spotflow. Open [app.spotflow.io/devices](https://app.spotflow.io/devices?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_devices) to see your device appear in the [Device Dashboard](https://docs.spotflow.io/fundamentals/dashboards?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_fundamentals_dashboards_device_dashboard#device-dashboard).
+Once the device is running and shows `MQTT connected!` on UART, it is streaming logs, metrics, and crash artifacts to Spotflow. Open [app.spotflow.io/devices](https://app.spotflow.io/devices?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_devices) to see your device appear in the [Device Dashboard](https://docs.spotflow.io/fundamentals/monitoring/dashboards?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_fundamentals_dashboards_device_dashboard#device-dashboard).
 
 ## What to expect on UART
 
@@ -163,7 +163,7 @@ This example registers these custom application metrics:
 
 Boot resets are tracked using the Spotflow system metric `boot_reset`. This metric is collected automatically by the Spotflow device module on every boot, with no registration or reporting code required in the application.
 
-It also enables the following Spotflow [system metrics](https://docs.spotflow.io/fundamentals/metrics?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_fundamentals_metrics_system_metrics#system-metrics), all collected automatically:
+It also enables the following Spotflow [system metrics](https://docs.spotflow.io/fundamentals/monitoring/metrics?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_fundamentals_metrics_system_metrics#system-metrics), all collected automatically:
 
 - heap
 - network traffic
@@ -189,7 +189,7 @@ These rules match the failure story in the firmware:
 - `sensor_read_failures` increments when malformed or corrupted frames appear
 - `boot_reset` is the Spotflow system metric for reset cause, reported automatically by the device module on every boot. It confirms that the device has crossed from degraded into unstable
 
-Start with these thresholds, then tune them for your real device behavior so that the rules catch genuine degradation without creating alert fatigue. For instructions on creating alert rules and notification targets in Spotflow, see [Fundamentals: Alerts](https://docs.spotflow.io/fundamentals/alerts?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_fundamentals_alerts) and [Guide: Set Up Alerts](https://docs.spotflow.io/guides/alert-rules?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_guide_alert_rules).
+Start with these thresholds, then tune them for your real device behavior so that the rules catch genuine degradation without creating alert fatigue. For instructions on creating alert rules and notification targets in Spotflow, see [Fundamentals: Alerts](https://docs.spotflow.io/fundamentals/monitoring/alerts?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_fundamentals_alerts) and [Guide: Set Up Alerts](https://docs.spotflow.io/using-spotflow/guides/alert-rules?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_guide_alert_rules).
 
 ## Project structure
 
@@ -206,10 +206,10 @@ Start with these thresholds, then tune them for your real device behavior so tha
 ## Related links
 
 - [Why ESP32 Crashes](https://spotflow.io/blog/esp32-remote-logging-monitoring-debugging?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_blog_post) — the companion blog post
-- [Fundamentals: Logging](https://docs.spotflow.io/fundamentals/logging?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_fundamentals_logging) — remote logs and backend behavior
-- [Fundamentals: Metrics](https://docs.spotflow.io/fundamentals/metrics?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_fundamentals_metrics) — system vs. custom metrics
-- [Fundamentals: Alerts](https://docs.spotflow.io/fundamentals/alerts?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_fundamentals_alerts) — alert conditions, evaluation windows, and notification behavior
+- [Fundamentals: Logging](https://docs.spotflow.io/fundamentals/monitoring/logging?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_fundamentals_logging) — remote logs and backend behavior
+- [Fundamentals: Metrics](https://docs.spotflow.io/fundamentals/monitoring/metrics?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_fundamentals_metrics) — system vs. custom metrics
+- [Fundamentals: Alerts](https://docs.spotflow.io/fundamentals/monitoring/alerts?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_fundamentals_alerts) — alert conditions, evaluation windows, and notification behavior
 - [Guide: Metrics with Zephyr](https://docs.spotflow.io/guides/zephyr/metrics-zephyr?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_guide_metrics_zephyr) — Zephyr integration reference
-- [Guide: Set Up Alerts](https://docs.spotflow.io/guides/alert-rules?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_guide_alert_rules) — create alert rules and notification targets in Spotflow
+- [Guide: Set Up Alerts](https://docs.spotflow.io/using-spotflow/guides/alert-rules?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_guide_alert_rules) — create alert rules and notification targets in Spotflow
 - [Guide: Crash Reports with Zephyr](https://docs.spotflow.io/guides/zephyr/crash-reports-zephyr?utm_source=github&utm_medium=referral&utm_campaign=firmware_examples_esp32_industrial_sensor_readme&utm_content=link_guide_crash_reports_zephyr) — crash report integration
 - [Spotflow Device SDK](https://github.com/spotflow-io/device-sdk) — SDK source and samples
